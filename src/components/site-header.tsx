@@ -10,8 +10,6 @@ import { Container } from "@/components/container";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/services", label: "Services" },
-  { href: "/work", label: "Work" },
   { href: "/videos", label: "Videos" },
   { href: "/contact", label: "Contact" },
 ] as const;
@@ -67,14 +65,14 @@ export function SiteHeader() {
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" className="group inline-flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-emerald-500 text-white shadow-sm shadow-sky-500/20">
-            <span className="text-sm font-semibold">ND</span>
+            <span className="text-sm font-semibold">DR</span>
           </span>
           <span className="leading-tight">
             <span className="block text-sm font-semibold tracking-tight">
-              {siteConfig.clinicName}
+              {siteConfig.name}
             </span>
             <span className="block text-xs text-zinc-500 dark:text-zinc-400">
-              {siteConfig.doctorName}
+              {siteConfig.title}
             </span>
           </span>
         </Link>
@@ -98,13 +96,6 @@ export function SiteHeader() {
               </Link>
             );
           })}
-
-          <Link
-            href="/contact"
-            className="ml-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-emerald-500/20 transition-transform hover:-translate-y-0.5 active:translate-y-0"
-          >
-            Book appointment
-          </Link>
         </nav>
 
         <button
@@ -141,12 +132,6 @@ export function SiteHeader() {
                     </Link>
                   );
                 })}
-                <Link
-                  href="/contact"
-                  className="mt-2 inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-500/20"
-                >
-                  Book appointment
-                </Link>
               </div>
             </Container>
           </div>

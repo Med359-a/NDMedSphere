@@ -1,13 +1,11 @@
-## NDMedSphere — Doctor Portfolio / Clinic Website (TypeScript)
+## NDMedSphere — Doctor Portfolio (TypeScript)
 
-A modern multi-page clinic website built with **Next.js + TypeScript + Tailwind**.
+A modern multi-page portfolio website built with **Next.js + TypeScript + Tailwind**.
 
 ### Pages
 
 - **Home**: `/`
 - **About**: `/about`
-- **Services**: `/services`
-- **Work / Portfolio**: `/work`
 - **Videos (upload + gallery)**: `/videos`
 - **Contact**: `/contact`
 

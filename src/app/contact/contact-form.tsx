@@ -14,10 +14,10 @@ function encodeMailto(value: string) {
 
 export function ContactForm({
   toEmail,
-  clinicName,
+  subjectPrefix,
 }: {
   toEmail: string;
-  clinicName: string;
+  subjectPrefix: string;
 }) {
   const [state, setState] = React.useState<FormState>({ status: "idle" });
   const [name, setName] = React.useState("");
@@ -36,7 +36,7 @@ export function ContactForm({
     // If you want server-side message handling later, we can add an API route.
     setState({ status: "sending" });
     try {
-      const subject = `[${clinicName}] Appointment / Inquiry`;
+      const subject = `[${subjectPrefix}] New message`;
       const body = `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`;
       const href = `mailto:${toEmail}?subject=${encodeMailto(
         subject,
@@ -103,7 +103,7 @@ export function ContactForm({
 
       {state.status === "sent" ? (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200">
-          Your email client should open now. If it didn’t, you can email us
+          Your email client should open now. If it didn’t, you can email me
           directly.
         </div>
       ) : null}

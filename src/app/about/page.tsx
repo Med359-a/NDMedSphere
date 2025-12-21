@@ -3,8 +3,8 @@ import { Container } from "@/components/container";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
-  title: `About — ${siteConfig.clinicName}`,
-  description: `Meet ${siteConfig.doctorName} and learn about the clinic approach.`,
+  title: `About — ${siteConfig.name}`,
+  description: `Background, focus areas, and approach for ${siteConfig.name}.`,
 };
 
 export default function AboutPage() {
@@ -18,11 +18,11 @@ export default function AboutPage() {
                 About
               </div>
               <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-                {siteConfig.doctorName}
+                {siteConfig.name}
               </h1>
               <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                Replace this content with your bio, credentials, and what makes
-                your clinic unique. Keep it warm, concise, and patient-focused.
+                Replace this with your bio: credentials, experience, research,
+                and the kind of work you want to showcase.
               </p>
             </div>
 
@@ -33,25 +33,23 @@ export default function AboutPage() {
                 <div className="mt-4 grid gap-3 text-sm text-zinc-700 dark:text-zinc-200">
                   <div className="rounded-2xl bg-zinc-900/5 p-4 dark:bg-white/10">
                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Specialties
+                      Focus areas
                     </div>
                     <div className="mt-1 font-medium">
-                      {siteConfig.specialties.join(" • ")}
+                      {siteConfig.focusAreas.join(" • ")}
                     </div>
                   </div>
                   <div className="rounded-2xl bg-zinc-900/5 p-4 dark:bg-white/10">
                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Clinic
+                      Title
                     </div>
-                    <div className="mt-1 font-medium">{siteConfig.clinicName}</div>
+                    <div className="mt-1 font-medium">{siteConfig.title}</div>
                   </div>
                   <div className="rounded-2xl bg-zinc-900/5 p-4 dark:bg-white/10">
                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Location
+                      Contact
                     </div>
-                    <div className="mt-1 font-medium">
-                      {siteConfig.contact.address}
-                    </div>
+                    <div className="mt-1 font-medium">{siteConfig.contact.email}</div>
                   </div>
                 </div>
               </div>
@@ -65,30 +63,30 @@ export default function AboutPage() {
           <div className="grid gap-10 lg:grid-cols-3">
             <div className="space-y-3 lg:col-span-1">
               <h2 className="text-2xl font-semibold tracking-tight">
-                Clinical approach
+                Approach
               </h2>
               <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                Write a short, clear description of how you practice: evidence,
-                empathy, outcomes, and continuity of care.
+                Describe how you work and what viewers can expect from your
+                content: clarity, technique, and practical outcomes.
               </p>
             </div>
             <div className="grid gap-4 lg:col-span-2 md:grid-cols-2">
               {[
                 {
-                  title: "Evidence-based care",
-                  body: "Modern guidelines with individualized decisions.",
+                  title: "Evidence‑based",
+                  body: "Grounded in best practices, explained simply.",
                 },
                 {
-                  title: "Clear next steps",
-                  body: "Simple plans you can follow after every visit.",
+                  title: "Clear structure",
+                  body: "Short formats that get to the point quickly.",
                 },
                 {
-                  title: "Time & attention",
-                  body: "Respectful consultations with room for questions.",
+                  title: "Practical demos",
+                  body: "Walkthroughs focused on technique and safety.",
                 },
                 {
-                  title: "Continuity",
-                  body: "Follow-ups and long-term health planning.",
+                  title: "Professional standards",
+                  body: "Clean presentation and careful documentation.",
                 },
               ].map((i) => (
                 <div

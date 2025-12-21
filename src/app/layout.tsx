@@ -18,13 +18,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: siteConfig.metaTitle,
   description: siteConfig.metaDescription,
-  applicationName: siteConfig.clinicName,
+  applicationName: siteConfig.name,
   metadataBase: new URL(siteConfig.siteUrl),
   openGraph: {
     title: siteConfig.metaTitle,
     description: siteConfig.metaDescription,
     url: siteConfig.siteUrl,
-    siteName: siteConfig.clinicName,
+    siteName: siteConfig.name,
     type: "website",
   },
 };
