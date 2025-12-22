@@ -21,8 +21,10 @@ export default function AboutPage() {
                 {siteConfig.name}
               </h1>
               <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                Replace this with your bio: credentials, experience, research,
-                and the kind of work you want to showcase.
+                I am a fourth-year medical student with a strong academic foundation and a
+                clear commitment to continuous professional development. I actively pursue
+                in-depth medical education, balancing theoretical knowledge with practical
+                application in clinical settings.
               </p>
             </div>
 
@@ -66,8 +68,18 @@ export default function AboutPage() {
                 Approach
               </h2>
               <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                Describe how you work and what viewers can expect from your
-                content: clarity, technique, and practical outcomes.
+                I participate in medical research projects, which allows me to develop
+                critical thinking skills, analytical reasoning, and a solid understanding
+                of evidence-based medicine. I have a strong command of core medical
+                subjects and am capable of effectively teaching and explaining complex
+                medical concepts to others.
+                <br />
+                <br />
+                In parallel with my studies, I am gaining hands-on clinical experience in a
+                neurosurgery department, where I am exposed to real-world medical practice
+                and advanced clinical decision-making. My goal is to integrate knowledge,
+                research, and clinical experience to provide high-quality,
+                patient-centered medical care.
               </p>
             </div>
             <div className="grid gap-4 lg:col-span-2 md:grid-cols-2">

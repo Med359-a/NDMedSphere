@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
+import { GridFSBucket, ObjectId } from "mongodb";
+import { Readable } from "node:stream";
 import type { BookItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
 import { getDb } from "@/lib/mongodb";
@@ -13,6 +15,7 @@ type BookDoc = {
   author?: string;
   url?: string;
   notes?: string;
+  fileId?: ObjectId;
   createdAt: Date;
 };
 
@@ -23,6 +26,7 @@ function toItem(doc: BookDoc): BookItem {
     author: doc.author,
     url: doc.url,
     notes: doc.notes,
+    fileId: doc.fileId?.toString(),
     createdAt: doc.createdAt.toISOString(),
   };
 }
@@ -62,31 +66,85 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Admin only." }, { status: 403 });
   }
 
-  const body = (await request.json().catch(() => null)) as
-    | { title?: unknown; author?: unknown; url?: unknown; notes?: unknown }
-    | null;
-
-  const title = String(body?.title ?? "").trim();
-  if (!title) {
-    return NextResponse.json({ error: "Title is required." }, { status: 400 });
-  }
-
-  const author = String(body?.author ?? "").trim();
-  const notes = String(body?.notes ?? "").trim();
-  const urlRaw = String(body?.url ?? "");
-  const url = normalizeUrl(urlRaw);
-  if (urlRaw.trim() && !url) {
-    return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
-  }
-
   try {
     const db = await getDb();
+    const bucket = new GridFSBucket(db, { bucketName: "books" });
+
+    // Handle multipart form data
+    let body: {
+      title: string;
+      author: string;
+      url: string;
+      notes: string;
+      file: File | null;
+    };
+
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      body = {
+        title: String(formData.get("title") ?? "").trim(),
+        author: String(formData.get("author") ?? "").trim(),
+        url: String(formData.get("url") ?? "").trim(),
+        notes: String(formData.get("notes") ?? "").trim(),
+        file: (formData.get("file") as File) || null,
+      };
+    } else {
+      const json = (await request.json().catch(() => null)) as any;
+      body = {
+        title: String(json?.title ?? "").trim(),
+        author: String(json?.author ?? "").trim(),
+        url: String(json?.url ?? "").trim(),
+        notes: String(json?.notes ?? "").trim(),
+        file: null,
+      };
+    }
+
+    if (!body.title) {
+      return NextResponse.json({ error: "Title is required." }, { status: 400 });
+    }
+
+    const url = normalizeUrl(body.url);
+    if (body.url && !url) {
+      return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
+    }
+
+    const id = crypto.randomUUID();
+    let fileId: ObjectId | undefined;
+
+    if (body.file) {
+      if (body.file.type !== "application/pdf") {
+        return NextResponse.json({ error: "Only PDF files are allowed." }, { status: 415 });
+      }
+
+      // 50MB limit for PDFs
+      if (body.file.size > 50 * 1024 * 1024) {
+        return NextResponse.json({ error: "File too large (max 50MB)." }, { status: 413 });
+      }
+
+      const upload = bucket.openUploadStream(id, {
+        contentType: body.file.type,
+        metadata: { originalName: body.file.name },
+      });
+
+      const buffer = Buffer.from(await body.file.arrayBuffer());
+      await new Promise<void>((resolve, reject) => {
+        Readable.from(buffer)
+          .pipe(upload)
+          .on("error", reject)
+          .on("finish", () => resolve());
+      });
+
+      fileId = upload.id as ObjectId;
+    }
+
     const doc: BookDoc = {
-      _id: crypto.randomUUID(),
-      title,
-      author: author || undefined,
+      _id: id,
+      title: body.title,
+      author: body.author || undefined,
       url: url || undefined,
-      notes: notes || undefined,
+      notes: body.notes || undefined,
+      fileId,
       createdAt: new Date(),
     };
 
@@ -112,10 +170,24 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const db = await getDb();
-    const res = await db.collection<BookDoc>("books").deleteOne({ _id: id });
-    if (res.deletedCount === 0) {
+    const collection = db.collection<BookDoc>("books");
+    const doc = await collection.findOne({ _id: id });
+
+    if (!doc) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
+
+    await collection.deleteOne({ _id: id });
+
+    if (doc.fileId) {
+      const bucket = new GridFSBucket(db, { bucketName: "books" });
+      try {
+        await bucket.delete(doc.fileId);
+      } catch {
+        // ignore if file missing
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(

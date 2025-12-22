@@ -4,14 +4,30 @@ export type BookItem = {
   author?: string;
   url?: string;
   notes?: string;
+  fileId?: string; // For uploaded PDF
   createdAt: string;
 };
 
-export type CaseItem = {
+export type QuizAnswer = {
+  id: string;
+  text: string;
+  isCorrect: boolean;
+};
+
+export type QuizItem = {
+  id: string;
+  question: string;
+  imageFileId?: string; // Optional image
+  answers: QuizAnswer[];
+  explanation?: string; // Optional explanation after answer
+  createdAt: string;
+};
+
+export type TopicItem = {
   id: string;
   title: string;
-  summary: string;
-  tags: string[];
+  description?: string;
+  quizzes: QuizItem[];
   createdAt: string;
 };
 

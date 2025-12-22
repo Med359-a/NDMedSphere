@@ -1,50 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import type { CaseItem } from "@/lib/content-types";
+import type { TopicItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
 import { getDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type CaseDoc = {
+// MongoDB Document Schema
+export type TopicDoc = {
   _id: string;
   title: string;
-  summary: string;
-  tags: string[];
+  description?: string;
+  quizzes: Array<{
+    id: string;
+    question: string;
+    imageFileId?: string; // stored as string ID from GridFS
+    answers: Array<{ id: string; text: string; isCorrect: boolean }>;
+    explanation?: string;
+    createdAt: Date;
+  }>;
   createdAt: Date;
 };
 
-function toItem(doc: CaseDoc): CaseItem {
+function toItem(doc: TopicDoc): TopicItem {
   return {
     id: doc._id,
     title: doc.title,
-    summary: doc.summary,
-    tags: Array.isArray(doc.tags) ? doc.tags : [],
+    description: doc.description,
+    quizzes: (doc.quizzes || []).map((q) => ({
+      id: q.id,
+      question: q.question,
+      imageFileId: q.imageFileId,
+      answers: q.answers,
+      explanation: q.explanation,
+      createdAt: q.createdAt.toISOString(),
+    })),
     createdAt: doc.createdAt.toISOString(),
   };
-}
-
-function parseTags(input: unknown) {
-  const values = Array.isArray(input)
-    ? input.map((v) => String(v))
-    : typeof input === "string"
-      ? input.split(",")
-      : [];
-
-  const cleaned = values
-    .map((v) => v.trim())
-    .filter(Boolean)
-    .map((v) => v.slice(0, 40));
-
-  return Array.from(new Set(cleaned)).slice(0, 12);
 }
 
 export async function GET() {
   try {
     const db = await getDb();
     const docs = await db
-      .collection<CaseDoc>("cases")
+      .collection<TopicDoc>("topics") // Renamed collection to 'topics' to avoid conflict/confusion, or migrate 'cases'
       .find({})
       .sort({ createdAt: -1 })
       .toArray();
@@ -54,7 +54,7 @@ export async function GET() {
     });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to load cases." },
+      { error: e instanceof Error ? e.message : "Failed to load topics." },
       { status: 500 },
     );
   }
@@ -66,38 +66,30 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | {
-        title?: unknown;
-        summary?: unknown;
-        tags?: unknown;
-      }
+    | { title?: unknown; description?: unknown }
     | null;
 
   const title = String(body?.title ?? "").trim();
-  const summary = String(body?.summary ?? "").trim();
-  const tags = parseTags(body?.tags);
+  const description = String(body?.description ?? "").trim();
 
   if (!title) {
     return NextResponse.json({ error: "Title is required." }, { status: 400 });
   }
-  if (!summary) {
-    return NextResponse.json({ error: "Summary is required." }, { status: 400 });
-  }
 
   try {
     const db = await getDb();
-    const doc: CaseDoc = {
+    const doc: TopicDoc = {
       _id: crypto.randomUUID(),
       title,
-      summary,
-      tags,
+      description,
+      quizzes: [],
       createdAt: new Date(),
     };
-    await db.collection<CaseDoc>("cases").insertOne(doc);
+    await db.collection<TopicDoc>("topics").insertOne(doc);
     return NextResponse.json({ item: toItem(doc) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to create case." },
+      { error: e instanceof Error ? e.message : "Failed to create topic." },
       { status: 500 },
     );
   }
@@ -115,16 +107,19 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const db = await getDb();
-    const res = await db.collection<CaseDoc>("cases").deleteOne({ _id: id });
+    const res = await db.collection<TopicDoc>("topics").deleteOne({ _id: id });
+    
+    // Ideally we should also delete all images associated with quizzes in this topic
+    // But for now, we'll rely on a manual cleanup or future improvement
+    
     if (res.deletedCount === 0) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to delete case." },
+      { error: e instanceof Error ? e.message : "Failed to delete topic." },
       { status: 500 },
     );
   }
 }
-

@@ -27,8 +27,10 @@ export function BooksClient() {
   const [author, setAuthor] = React.useState("");
   const [url, setUrl] = React.useState("");
   const [notes, setNotes] = React.useState("");
+  const [file, setFile] = React.useState<File | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -59,16 +61,29 @@ export function BooksClient() {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/books", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          author: author.trim(),
-          url: url.trim(),
-          notes: notes.trim(),
-        }),
-      });
+      let res: Response;
+
+      if (file) {
+        const fd = new FormData();
+        fd.append("title", title.trim());
+        fd.append("author", author.trim());
+        fd.append("url", url.trim());
+        fd.append("notes", notes.trim());
+        fd.append("file", file);
+
+        res = await fetch("/api/books", { method: "POST", body: fd });
+      } else {
+        res = await fetch("/api/books", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: title.trim(),
+            author: author.trim(),
+            url: url.trim(),
+            notes: notes.trim(),
+          }),
+        });
+      }
 
       if (!res.ok) {
         const payload = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -87,6 +102,8 @@ export function BooksClient() {
       setAuthor("");
       setUrl("");
       setNotes("");
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (e) {
       setLoad({
         status: "error",
@@ -193,6 +210,25 @@ export function BooksClient() {
                     />
                   </div>
 
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium" htmlFor="file">
+                      Upload PDF (optional)
+                    </label>
+                    <input
+                      ref={fileInputRef}
+                      id="file"
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      className="block w-full rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm shadow-sm file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-zinc-800 dark:border-white/15 dark:bg-zinc-950/40 dark:file:bg-white dark:file:text-zinc-900 dark:hover:file:bg-zinc-100"
+                    />
+                    {file ? (
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Selected: {file.name}
+                      </div>
+                    ) : null}
+                  </div>
+
                   <button
                     type="submit"
                     disabled={saving || !title.trim()}
@@ -286,6 +322,17 @@ export function BooksClient() {
                       className="mt-4 inline-flex items-center text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
                     >
                       Open link →
+                    </a>
+                  ) : null}
+
+                  {b.fileId ? (
+                    <a
+                      href={`/api/books/download?id=${b.id}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 ml-4 inline-flex items-center text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                    >
+                      Download PDF ↓
                     </a>
                   ) : null}
 
