@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+import { useAdmin } from "@/lib/use-admin";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/container";
@@ -50,6 +51,8 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
 
 export function SiteHeader() {
   const pathname = usePathname() ?? "/";
+  const admin = useAdmin();
+  const isAdmin = admin.isAdmin;
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -71,8 +74,13 @@ export function SiteHeader() {
             <span className="text-sm font-semibold">DR</span>
           </span>
           <span className="leading-tight">
-            <span className="block text-sm font-semibold tracking-tight">
-              {siteConfig.name}
+            <span className="flex items-center gap-2 text-sm font-semibold tracking-tight">
+              <span>{siteConfig.name}</span>
+              {isAdmin ? (
+                <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-200">
+                  Admin
+                </span>
+              ) : null}
             </span>
             <span className="block text-xs text-zinc-500 dark:text-zinc-400">
               {siteConfig.title}

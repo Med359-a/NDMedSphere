@@ -7,6 +7,8 @@ type HeadersLike = {
 // Default allowlist. You can extend it at runtime via:
 // ADMIN_IP_ALLOWLIST="212.58.103.244,203.0.113.10"
 const DEFAULT_ADMIN_IP_ALLOWLIST = ["212.58.103.244"] as const;
+const DEV_LOOPBACK_ALLOWLIST =
+  process.env.NODE_ENV === "production" ? ([] as const) : (["127.0.0.1", "::1"] as const);
 
 let cachedAllowlist: Set<string> | null = null;
 
@@ -49,7 +51,9 @@ function getAllowlist() {
     .filter(Boolean);
 
   cachedAllowlist = new Set(
-    [...DEFAULT_ADMIN_IP_ALLOWLIST, ...extra].map((v) => normalizeIp(v)),
+    [...DEFAULT_ADMIN_IP_ALLOWLIST, ...DEV_LOOPBACK_ALLOWLIST, ...extra].map((v) =>
+      normalizeIp(v),
+    ),
   );
 
   return cachedAllowlist;
