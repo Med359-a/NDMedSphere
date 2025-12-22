@@ -10,6 +10,9 @@ import { Container } from "@/components/container";
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
+  { href: "/books", label: "Books" },
+  { href: "/cases", label: "Cases" },
+  { href: "/personal-studying", label: "Personal Studying" },
   { href: "/videos", label: "Videos" },
   { href: "/contact", label: "Contact" },
 ] as const;
