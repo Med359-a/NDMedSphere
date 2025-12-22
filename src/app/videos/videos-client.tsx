@@ -136,8 +136,7 @@ export function VideosClient() {
                 {isAdmin ? (
                   <>
                     Add procedure demos, case walkthroughs, or educational clips. Videos are
-                    saved locally to <code>public/uploads/videos</code> and tracked in{" "}
-                    <code>data/videos.json</code>.
+                    stored in MongoDB (Atlas) and streamed from the server.
                   </>
                 ) : (
                   <>Browse uploaded videos. Uploading and deletion are admin-only.</>
@@ -268,7 +267,7 @@ export function VideosClient() {
             <div className="mt-10 rounded-[2rem] border border-black/10 bg-white/60 p-10 text-center shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50">
               <div className="text-lg font-semibold">No videos yet</div>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
-                Upload your first work video using the form above.
+                {isAdmin ? "Upload your first work video using the form above." : "Check back soon."}
               </p>
             </div>
           ) : null}
@@ -285,7 +284,7 @@ export function VideosClient() {
                       className="h-56 w-full object-cover"
                       controls
                       preload="metadata"
-                      src={`/uploads/videos/${v.filename}`}
+                      src={`/api/videos/stream?id=${encodeURIComponent(v.id)}`}
                     />
                   </div>
                   <div className="space-y-2 p-5">

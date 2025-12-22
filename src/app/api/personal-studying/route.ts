@@ -1,39 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import path from "node:path";
-import { promises as fs } from "node:fs";
 import type { StudyItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
+import { getDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "personal-studying.json");
+type StudyDoc = {
+  _id: string;
+  title: string;
+  notes: string;
+  tags: string[];
+  createdAt: Date;
+};
 
-async function ensureStore() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  try {
-    await fs.access(DATA_FILE);
-  } catch {
-    await fs.writeFile(DATA_FILE, "[]\n", "utf8");
-  }
-}
-
-async function readAll(): Promise<StudyItem[]> {
-  await ensureStore();
-  const raw = await fs.readFile(DATA_FILE, "utf8");
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as StudyItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-async function writeAll(items: StudyItem[]) {
-  await ensureStore();
-  await fs.writeFile(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
+function toItem(doc: StudyDoc): StudyItem {
+  return {
+    id: doc._id,
+    title: doc.title,
+    notes: doc.notes,
+    tags: Array.isArray(doc.tags) ? doc.tags : [],
+    createdAt: doc.createdAt.toISOString(),
+  };
 }
 
 function parseTags(input: unknown) {
@@ -52,9 +41,23 @@ function parseTags(input: unknown) {
 }
 
 export async function GET() {
-  const items = await readAll();
-  items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return NextResponse.json(items, { headers: { "Cache-Control": "no-store" } });
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<StudyDoc>("personalStudying")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return NextResponse.json(docs.map(toItem), {
+      headers: { "Cache-Control": "no-store" },
+    });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to load notes." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -81,17 +84,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Notes are required." }, { status: 400 });
   }
 
-  const item: StudyItem = {
-    id: crypto.randomUUID(),
-    title,
-    notes,
-    tags,
-    createdAt: new Date().toISOString(),
-  };
-
-  const current = await readAll();
-  await writeAll([item, ...current]);
-  return NextResponse.json({ item }, { status: 201 });
+  try {
+    const db = await getDb();
+    const doc: StudyDoc = {
+      _id: crypto.randomUUID(),
+      title,
+      notes,
+      tags,
+      createdAt: new Date(),
+    };
+    await db.collection<StudyDoc>("personalStudying").insertOne(doc);
+    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to create note." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function DELETE(request: NextRequest) {
@@ -104,14 +113,18 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing query param 'id'." }, { status: 400 });
   }
 
-  const items = await readAll();
-  const idx = items.findIndex((s) => s.id === id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  try {
+    const db = await getDb();
+    const res = await db.collection<StudyDoc>("personalStudying").deleteOne({ _id: id });
+    if (res.deletedCount === 0) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to delete note." },
+      { status: 500 },
+    );
   }
-
-  items.splice(idx, 1);
-  await writeAll(items);
-  return NextResponse.json({ ok: true });
 }
 

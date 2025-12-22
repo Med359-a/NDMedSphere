@@ -1,39 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import path from "node:path";
-import { promises as fs } from "node:fs";
 import type { BookItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
+import { getDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "books.json");
+type BookDoc = {
+  _id: string;
+  title: string;
+  author?: string;
+  url?: string;
+  notes?: string;
+  createdAt: Date;
+};
 
-async function ensureStore() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  try {
-    await fs.access(DATA_FILE);
-  } catch {
-    await fs.writeFile(DATA_FILE, "[]\n", "utf8");
-  }
-}
-
-async function readAll(): Promise<BookItem[]> {
-  await ensureStore();
-  const raw = await fs.readFile(DATA_FILE, "utf8");
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as BookItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-async function writeAll(items: BookItem[]) {
-  await ensureStore();
-  await fs.writeFile(DATA_FILE, `${JSON.stringify(items, null, 2)}\n`, "utf8");
+function toItem(doc: BookDoc): BookItem {
+  return {
+    id: doc._id,
+    title: doc.title,
+    author: doc.author,
+    url: doc.url,
+    notes: doc.notes,
+    createdAt: doc.createdAt.toISOString(),
+  };
 }
 
 function normalizeUrl(value: string) {
@@ -47,9 +38,23 @@ function normalizeUrl(value: string) {
 }
 
 export async function GET() {
-  const items = await readAll();
-  items.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  return NextResponse.json(items, { headers: { "Cache-Control": "no-store" } });
+  try {
+    const db = await getDb();
+    const docs = await db
+      .collection<BookDoc>("books")
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    return NextResponse.json(docs.map(toItem), {
+      headers: { "Cache-Control": "no-store" },
+    });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to load books." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -58,12 +63,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | {
-        title?: unknown;
-        author?: unknown;
-        url?: unknown;
-        notes?: unknown;
-      }
+    | { title?: unknown; author?: unknown; url?: unknown; notes?: unknown }
     | null;
 
   const title = String(body?.title ?? "").trim();
@@ -79,19 +79,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
   }
 
-  const item: BookItem = {
-    id: crypto.randomUUID(),
-    title,
-    author: author || undefined,
-    url: url || undefined,
-    notes: notes || undefined,
-    createdAt: new Date().toISOString(),
-  };
+  try {
+    const db = await getDb();
+    const doc: BookDoc = {
+      _id: crypto.randomUUID(),
+      title,
+      author: author || undefined,
+      url: url || undefined,
+      notes: notes || undefined,
+      createdAt: new Date(),
+    };
 
-  const current = await readAll();
-  await writeAll([item, ...current]);
-
-  return NextResponse.json({ item }, { status: 201 });
+    await db.collection<BookDoc>("books").insertOne(doc);
+    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to create book." },
+      { status: 500 },
+    );
+  }
 }
 
 export async function DELETE(request: NextRequest) {
@@ -104,14 +110,18 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: "Missing query param 'id'." }, { status: 400 });
   }
 
-  const items = await readAll();
-  const idx = items.findIndex((b) => b.id === id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  try {
+    const db = await getDb();
+    const res = await db.collection<BookDoc>("books").deleteOne({ _id: id });
+    if (res.deletedCount === 0) {
+      return NextResponse.json({ error: "Not found." }, { status: 404 });
+    }
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "Failed to delete book." },
+      { status: 500 },
+    );
   }
-
-  items.splice(idx, 1);
-  await writeAll(items);
-  return NextResponse.json({ ok: true });
 }
 
