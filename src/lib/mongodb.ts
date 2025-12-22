@@ -29,9 +29,17 @@ export async function getMongoClient(): Promise<MongoClient> {
       strict: true,
       deprecationErrors: true,
     },
+    // Adding reasonable timeouts to prevent long hangs on failed handshakes
+    connectTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
   });
 
-  globalThis.__mongoClientPromise = client.connect();
+  globalThis.__mongoClientPromise = client.connect().catch((err) => {
+    console.error("Failed to connect to MongoDB:", err.message);
+    // Reset the promise so subsequent requests can try to reconnect
+    globalThis.__mongoClientPromise = undefined;
+    throw err;
+  });
   return globalThis.__mongoClientPromise;
 }
 
