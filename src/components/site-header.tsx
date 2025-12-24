@@ -12,8 +12,10 @@ const navItems = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/books", label: "Books" },
+  { href: "/", label: "USMLE" },
   { href: "/cases", label: "Cases" },
   { href: "/videos", label: "Videos" },
+  { href: "/", label: "Personal Studying" },
   { href: "/personal-studying", label: "Medical News" },
   { href: "/contact", label: "Contact" },
 ] as const;
