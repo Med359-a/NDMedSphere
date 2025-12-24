@@ -21,7 +21,7 @@ export default function AboutPage() {
                 {siteConfig.name}
               </h1>
               <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                I am a fourth-year medical student with a strong academic foundation and a
+                I am a medical student with a strong academic foundation and a
                 clear commitment to continuous professional development. I actively pursue
                 in-depth medical education, balancing theoretical knowledge with practical
                 application in clinical settings.
