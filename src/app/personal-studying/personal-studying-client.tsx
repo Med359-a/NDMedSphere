@@ -127,13 +127,13 @@ export function PersonalStudyingClient() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-end">
             <div className="space-y-3">
               <div className="text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                Personal Studying
+                Medical News
               </div>
               <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-                Study notes
+                News
               </h1>
               <p className="max-w-2xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                Personal learning notes and study workflow. Editing is admin-only.
+                Check out the latest medical news and updates.
               </p>
             </div>
 
