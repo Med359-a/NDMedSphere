@@ -65,14 +65,6 @@ export function SiteFooter() {
           </div>
         </div>
       </Container>
-
-      <div className="border-t border-black/5 py-4 text-center text-xs text-zinc-500 dark:border-white/10 dark:text-zinc-400">
-        This site is a portfolio template. Customize it in{" "}
-        <code className="rounded bg-black/5 px-1 py-0.5 dark:bg-white/10">
-          src/lib/site-config.ts
-        </code>{" "}
-        with your real details.
-      </div>
     </footer>
   );
 }
