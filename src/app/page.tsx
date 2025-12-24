@@ -1,10 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/container";
 import { siteConfig } from "@/lib/site-config";
 import heroImage from "@/image_50348545.jpg";
+import { useLanguage } from "@/lib/i18n";
 
 export default function Home() {
+  const { t } = useLanguage();
   return (
     <div>
       <section className="relative overflow-hidden">
@@ -13,7 +17,7 @@ export default function Home() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-200">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                Doctor portfolio • Videos & case walkthroughs
+                {t.home.tagline_badge}
               </div>
 
               <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -25,8 +29,7 @@ export default function Home() {
               </h1>
 
               <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                {siteConfig.tagline} Explore the Videos page to upload and
-                showcase work content.
+                {t.home.tagline_main}
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -34,18 +37,18 @@ export default function Home() {
                   href="/videos"
                   className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 active:translate-y-px dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
                 >
-                  View videos
+                  {t.home.cta_videos}
                 </Link>
                 <Link
                   href="/contact"
                   className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:translate-y-px dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-50 dark:hover:bg-zinc-950"
                 >
-                  Contact
+                  {t.home.cta_contact}
                 </Link>
               </div>
 
               <div className="flex flex-wrap gap-2 pt-2">
-                {siteConfig.focusAreas.map((s) => (
+                {t.home.focus_areas.map((s) => (
                   <span
                     key={s}
                     className="rounded-full bg-zinc-900/5 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-200"
@@ -70,9 +73,9 @@ export default function Home() {
 
               <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 {[
-                  { k: "Focus", v: "Practical demos" },
-                  { k: "Style", v: "Clear explanations" },
-                  { k: "Output", v: "Video portfolio" },
+                  t.home.feature_1,
+                  t.home.feature_2,
+                  t.home.feature_3,
                 ].map((item) => (
                   <div
                     key={item.k}
@@ -97,30 +100,27 @@ export default function Home() {
               <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 Clarity
               </div>
-              <div className="mt-2 text-lg font-semibold">Clear communication</div>
+              <div className="mt-2 text-lg font-semibold">{t.home.grid_1.title}</div>
               <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                Short, structured explanations that make complex topics easy to
-                follow.
+                {t.home.grid_1.body}
               </p>
             </div>
             <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-zinc-950 dark:ring-white/10">
               <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 Precision
               </div>
-              <div className="mt-2 text-lg font-semibold">High standards</div>
+              <div className="mt-2 text-lg font-semibold">{t.home.grid_2.title}</div>
               <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                Careful technique, consistent documentation, and thoughtful
-                walkthroughs.
+                {t.home.grid_2.body}
               </p>
             </div>
             <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-black/5 dark:bg-zinc-950 dark:ring-white/10">
               <div className="text-xs text-zinc-500 dark:text-zinc-400">
                 Portfolio
               </div>
-              <div className="mt-2 text-lg font-semibold">Show your work</div>
+              <div className="mt-2 text-lg font-semibold">{t.home.grid_3.title}</div>
               <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                A dedicated Videos page to upload and organize your work content
-                in one place.
+                {t.home.grid_3.body}
               </p>
             </div>
           </div>
@@ -135,35 +135,25 @@ export default function Home() {
                 Portfolio
               </div>
               <h2 className="text-3xl font-semibold tracking-tight">
-                Work content — organized and easy to browse
+                {t.home.portfolio_title}
               </h2>
               <p className="text-zinc-700 dark:text-zinc-200">
-                Upload videos with titles and descriptions, then view them in a
-                clean gallery.
+                {t.home.portfolio_body}
               </p>
             </div>
             <Link
               href="/videos"
               className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-50 dark:hover:bg-zinc-950"
             >
-              Open Videos →
+              {t.home.portfolio_link} →
             </Link>
           </div>
 
           <div className="mt-10 grid gap-4 md:grid-cols-3">
             {[
-              {
-                title: "Upload",
-                body: "Add one or multiple video files with optional title and description.",
-              },
-              {
-                title: "Preview",
-                body: "Videos render with a built‑in player for quick review and sharing.",
-              },
-              {
-                title: "Manage",
-                body: "Delete items from the gallery to keep your portfolio clean.",
-              },
+              t.home.card_1,
+              t.home.card_2,
+              t.home.card_3,
             ].map((s) => (
               <div
                 key={s.title}
@@ -188,11 +178,10 @@ export default function Home() {
                   Ready to get started?
                 </div>
                 <h2 className="text-3xl font-semibold tracking-tight">
-                  A modern portfolio — with a videos gallery built in
+                  {t.home.bottom_title}
                 </h2>
                 <p className="text-white/80">
-                  Keep your work organized on the Videos page by uploading files
-                  directly.
+                  {t.home.bottom_body}
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
@@ -200,13 +189,13 @@ export default function Home() {
                   href="/videos"
                   className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition hover:bg-zinc-100"
                 >
-                  Upload videos
+                  {t.home.bottom_cta}
                 </Link>
                 <Link
                   href="/contact"
                   className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-white/10"
                 >
-                  Contact
+                  {t.home.cta_contact}
                 </Link>
               </div>
             </div>

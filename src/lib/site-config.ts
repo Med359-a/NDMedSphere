@@ -12,15 +12,13 @@ export const siteConfig = {
     "A modern doctor portfolio website with a videos page to upload and showcase work.",
 
   contact: {
-    email: "dato.rekhv@gmail.com",
+    email: "medsphere29@gmail.com",
     phone: "",
     location: "",
   },
 
   social: {
-    instagram: "",
-    linkedin: "",
-    youtube: "",
+    facebook: "https://www.facebook.com/share/1aoNzM6js1/?mibextid=wwXIfr",
   },
 } as const;
 

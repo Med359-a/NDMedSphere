@@ -34,8 +34,11 @@ export function PersonalStudyingClient() {
   const [title, setTitle] = React.useState("");
   const [notes, setNotes] = React.useState("");
   const [tags, setTags] = React.useState("");
+  const [url, setUrl] = React.useState("");
+  const [file, setFile] = React.useState<File | null>(null);
   const [saving, setSaving] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const refresh = React.useCallback(async () => {
     try {
@@ -66,14 +69,18 @@ export function PersonalStudyingClient() {
 
     setSaving(true);
     try {
+      const fd = new FormData();
+      fd.append("title", title.trim());
+      fd.append("notes", notes.trim());
+      fd.append("tags", tags);
+      fd.append("url", url.trim());
+      if (file) {
+        fd.append("file", file);
+      }
+
       const res = await fetch("/api/personal-studying", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          notes: notes.trim(),
-          tags: splitTags(tags),
-        }),
+        body: fd,
       });
 
       if (!res.ok) {
@@ -89,6 +96,9 @@ export function PersonalStudyingClient() {
       setTitle("");
       setNotes("");
       setTags("");
+      setUrl("");
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (e) {
       setLoad({
         status: "error",
@@ -170,15 +180,30 @@ export function PersonalStudyingClient() {
                   </div>
 
                   <div className="grid gap-2">
-                    <label className="text-sm font-medium" htmlFor="study-tags">
-                      Tags (optional)
+                    <label className="text-sm font-medium" htmlFor="study-url">
+                      Link (optional)
                     </label>
                     <input
-                      id="study-tags"
-                      value={tags}
-                      onChange={(e) => setTags(e.target.value)}
+                      id="study-url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
                       className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
-                      placeholder="Cardiology, Guidelines, Review"
+                      placeholder="https://..."
+                      inputMode="url"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium" htmlFor="study-file">
+                      Image (optional)
+                    </label>
+                    <input
+                      ref={fileInputRef}
+                      id="study-file"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      className="block w-full rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm shadow-sm file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-zinc-800 dark:border-white/15 dark:bg-zinc-950/40 dark:file:bg-white dark:file:text-zinc-900 dark:hover:file:bg-zinc-100"
                     />
                   </div>
 
@@ -286,6 +311,27 @@ export function PersonalStudyingClient() {
                       </button>
                     ) : null}
                   </div>
+
+                  {s.imageFileId ? (
+                    <div className="mt-4">
+                      <img
+                        src={`/api/personal-studying/image?id=${s.imageFileId}`}
+                        alt={s.title}
+                        className="max-h-96 rounded-lg object-contain"
+                      />
+                    </div>
+                  ) : null}
+
+                  {s.url ? (
+                    <a
+                      href={s.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 inline-flex items-center text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
+                    >
+                      Read more →
+                    </a>
+                  ) : null}
 
                   <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-600 dark:text-zinc-300">
                     {s.notes}

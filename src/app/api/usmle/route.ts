@@ -2,48 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { GridFSBucket, ObjectId } from "mongodb";
 import { Readable } from "node:stream";
-import type { StudyItem } from "@/lib/content-types";
+import type { UsmleItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
 import { getDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type StudyDoc = {
+type UsmleDoc = {
   _id: string;
   title: string;
-  notes: string;
-  tags: string[];
+  description?: string;
   url?: string;
-  imageFileId?: ObjectId;
+  fileId?: ObjectId;
+  fileName?: string;
+  fileType?: string;
   createdAt: Date;
 };
 
-function toItem(doc: StudyDoc): StudyItem {
+function toItem(doc: UsmleDoc): UsmleItem {
   return {
     id: doc._id,
     title: doc.title,
-    notes: doc.notes,
-    tags: Array.isArray(doc.tags) ? doc.tags : [],
+    description: doc.description,
     url: doc.url,
-    imageFileId: doc.imageFileId?.toString(),
+    fileId: doc.fileId?.toString(),
+    fileName: doc.fileName,
+    fileType: doc.fileType,
     createdAt: doc.createdAt.toISOString(),
   };
-}
-
-function parseTags(input: unknown) {
-  const values = Array.isArray(input)
-    ? input.map((v) => String(v))
-    : typeof input === "string"
-      ? input.split(",")
-      : [];
-
-  const cleaned = values
-    .map((v) => v.trim())
-    .filter(Boolean)
-    .map((v) => v.slice(0, 40));
-
-  return Array.from(new Set(cleaned)).slice(0, 12);
 }
 
 function normalizeUrl(value: string) {
@@ -60,7 +47,7 @@ export async function GET() {
   try {
     const db = await getDb();
     const docs = await db
-      .collection<StudyDoc>("personalStudying")
+      .collection<UsmleDoc>("usmle")
       .find({})
       .sort({ createdAt: -1 })
       .toArray();
@@ -70,7 +57,7 @@ export async function GET() {
     });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to load notes." },
+      { error: e instanceof Error ? e.message : "Failed to load resources." },
       { status: 500 },
     );
   }
@@ -83,12 +70,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const db = await getDb();
-    const bucket = new GridFSBucket(db, { bucketName: "news_images" });
+    const bucket = new GridFSBucket(db, { bucketName: "usmle_files" });
 
     let body: {
       title: string;
-      notes: string;
-      tags: string[];
+      description: string;
       url: string;
       file: File | null;
     };
@@ -98,8 +84,7 @@ export async function POST(request: NextRequest) {
       const formData = await request.formData();
       body = {
         title: String(formData.get("title") ?? "").trim(),
-        notes: String(formData.get("notes") ?? "").trim(),
-        tags: parseTags(formData.get("tags")),
+        description: String(formData.get("description") ?? "").trim(),
         url: String(formData.get("url") ?? "").trim(),
         file: (formData.get("file") as File) || null,
       };
@@ -107,8 +92,7 @@ export async function POST(request: NextRequest) {
       const json = (await request.json().catch(() => null)) as any;
       body = {
         title: String(json?.title ?? "").trim(),
-        notes: String(json?.notes ?? "").trim(),
-        tags: parseTags(json?.tags),
+        description: String(json?.description ?? "").trim(),
         url: String(json?.url ?? "").trim(),
         file: null,
       };
@@ -117,28 +101,32 @@ export async function POST(request: NextRequest) {
     if (!body.title) {
       return NextResponse.json({ error: "Title is required." }, { status: 400 });
     }
-    if (!body.notes) {
-      return NextResponse.json({ error: "Notes are required." }, { status: 400 });
-    }
 
     const url = normalizeUrl(body.url);
     if (body.url && !url) {
       return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
     }
 
-    let imageFileId: ObjectId | undefined;
+    const id = crypto.randomUUID();
+    let fileId: ObjectId | undefined;
+    let fileType: string | undefined;
 
     if (body.file) {
-      if (!body.file.type.startsWith("image/")) {
-        return NextResponse.json({ error: "Only image files are allowed." }, { status: 415 });
+      // 100MB limit
+      if (body.file.size > 100 * 1024 * 1024) {
+        return NextResponse.json({ error: "File too large (max 100MB)." }, { status: 413 });
       }
 
-      if (body.file.size > 10 * 1024 * 1024) {
-        return NextResponse.json({ error: "Image too large (max 10MB)." }, { status: 413 });
+      if (body.file.type === "application/pdf") {
+        fileType = "pdf";
+      } else if (body.file.type.startsWith("image/")) {
+        fileType = "image";
+      } else {
+        return NextResponse.json({ error: "Only PDF or Image files are allowed." }, { status: 415 });
       }
 
-      const fileId = new ObjectId();
-      const upload = bucket.openUploadStreamWithId(fileId, body.file.name, {
+      const fId = new ObjectId();
+      const upload = bucket.openUploadStreamWithId(fId, body.file.name, {
         contentType: body.file.type,
       });
 
@@ -150,24 +138,25 @@ export async function POST(request: NextRequest) {
           .on("finish", () => resolve());
       });
 
-      imageFileId = fileId;
+      fileId = fId;
     }
 
-    const doc: StudyDoc = {
-      _id: crypto.randomUUID(),
+    const doc: UsmleDoc = {
+      _id: id,
       title: body.title,
-      notes: body.notes,
-      tags: body.tags,
+      description: body.description || undefined,
       url: url || undefined,
-      imageFileId,
+      fileId,
+      fileName: body.file?.name,
+      fileType,
       createdAt: new Date(),
     };
 
-    await db.collection<StudyDoc>("personalStudying").insertOne(doc);
+    await db.collection<UsmleDoc>("usmle").insertOne(doc);
     return NextResponse.json({ item: toItem(doc) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to create note." },
+      { error: e instanceof Error ? e.message : "Failed to create resource." },
       { status: 500 },
     );
   }
@@ -185,7 +174,7 @@ export async function DELETE(request: NextRequest) {
 
   try {
     const db = await getDb();
-    const collection = db.collection<StudyDoc>("personalStudying");
+    const collection = db.collection<UsmleDoc>("usmle");
     const doc = await collection.findOne({ _id: id });
 
     if (!doc) {
@@ -194,10 +183,10 @@ export async function DELETE(request: NextRequest) {
 
     await collection.deleteOne({ _id: id });
 
-    if (doc.imageFileId) {
-      const bucket = new GridFSBucket(db, { bucketName: "news_images" });
+    if (doc.fileId) {
+      const bucket = new GridFSBucket(db, { bucketName: "usmle_files" });
       try {
-        await bucket.delete(doc.imageFileId);
+        await bucket.delete(doc.fileId);
       } catch {
         // ignore
       }
@@ -206,9 +195,8 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to delete note." },
+      { error: e instanceof Error ? e.message : "Failed to delete resource." },
       { status: 500 },
     );
   }
 }
-

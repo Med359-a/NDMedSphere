@@ -7,18 +7,7 @@ import { useAdmin } from "@/lib/use-admin";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/container";
-
-const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/books", label: "Books" },
-  { href: "/", label: "USMLE" },
-  { href: "/cases", label: "Cases" },
-  { href: "/videos", label: "Videos" },
-  { href: "/", label: "Personal Studying" },
-  { href: "/personal-studying", label: "Medical News" },
-  { href: "/contact", label: "Contact" },
-] as const;
+import { useLanguage } from "@/lib/i18n";
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -55,7 +44,19 @@ export function SiteHeader() {
   const pathname = usePathname() ?? "/";
   const admin = useAdmin();
   const isAdmin = admin.isAdmin;
+  const { t, language, setLanguage } = useLanguage();
   const [open, setOpen] = React.useState(false);
+
+  const navItems = [
+    { href: "/", label: t.nav.home },
+    { href: "/about", label: t.nav.about },
+    { href: "/books", label: t.nav.books },
+    { href: "/usmle", label: t.nav.usmle },
+    { href: "/cases", label: t.nav.cases },
+    { href: "/videos", label: t.nav.videos },
+    { href: "/personal-studying", label: t.nav.news },
+    { href: "/contact", label: t.nav.contact },
+  ];
 
   React.useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -109,17 +110,33 @@ export function SiteHeader() {
               </Link>
             );
           })}
+          <button
+            type="button"
+            onClick={() => setLanguage(language === "en" ? "ka" : "en")}
+            className="ml-2 rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-900/5 dark:text-zinc-200 dark:hover:bg-white/10"
+          >
+            {language === "en" ? "KA" : "EN"}
+          </button>
         </nav>
 
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 p-2 text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white md:hidden dark:border-white/15 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:bg-zinc-950"
-          aria-label={open ? "Close menu" : "Open menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          {open ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            type="button"
+            onClick={() => setLanguage(language === "en" ? "ka" : "en")}
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 p-2 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:bg-zinc-950"
+          >
+            {language === "en" ? "KA" : "EN"}
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 p-2 text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-zinc-950/60 dark:text-zinc-50 dark:hover:bg-zinc-950"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
+          </button>
+        </div>
       </Container>
 
       {open ? (

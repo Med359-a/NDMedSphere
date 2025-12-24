@@ -36,6 +36,19 @@ export type StudyItem = {
   title: string;
   notes: string;
   tags: string[];
+  url?: string;
+  imageFileId?: string;
+  createdAt: string;
+};
+
+export type UsmleItem = {
+  id: string;
+  title: string;
+  description?: string;
+  url?: string;
+  fileId?: string; // For uploaded PDF/Image
+  fileName?: string;
+  fileType?: string; // 'pdf' | 'image'
   createdAt: string;
 };
 
