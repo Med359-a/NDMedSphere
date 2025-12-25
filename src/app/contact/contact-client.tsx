@@ -71,6 +71,16 @@ export function ContactClient() {
                       Facebook
                     </a>
                   ) : null}
+                  {siteConfig.social.youtube ? (
+                    <a
+                      href={siteConfig.social.youtube}
+                      className="rounded-xl bg-zinc-900/5 px-4 py-3 text-sm font-medium text-zinc-900 transition hover:bg-zinc-900/10 dark:bg-white/10 dark:text-zinc-50 dark:hover:bg-white/15"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      YouTube
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </div>

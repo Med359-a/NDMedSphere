@@ -19,6 +19,7 @@ export const siteConfig = {
 
   social: {
     facebook: "https://www.facebook.com/share/1aoNzM6js1/?mibextid=wwXIfr",
+    youtube: "https://youtube.com/@dr.ns.david1?si=RhucG6uCYbPhdHLF",
   },
 } as const;
 
