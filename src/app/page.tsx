@@ -14,22 +14,20 @@ export default function Home() {
     <div>
       <section className="relative overflow-hidden pt-8">
         <Container className="py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-2">
-            {/* Left Section: Logo and Content side-by-side on desktop to avoid overlap */}
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-[auto_1fr] lg:items-start lg:gap-10 lg:pt-4">
-              {/* Logo container */}
-              <div className="flex justify-center lg:justify-start">
-                <div className="relative h-32 w-32 shrink-0 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur transition-transform hover:scale-105 dark:border-white/15 dark:bg-zinc-950/50 sm:h-40 sm:w-40 xl:h-48 xl:w-48">
-                  <Image
-                    src={logo}
-                    alt="Logo"
-                    className="h-full w-full object-cover"
-                    priority
-                  />
-                </div>
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+            {/* Left Section: Logo Stacked Above Text */}
+            <div className="space-y-10 lg:pt-4">
+              {/* Logo container - no longer absolutely positioned to prevent overlap and shrinking */}
+              <div className="relative h-32 w-32 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur transition-transform hover:scale-105 dark:border-white/15 dark:bg-zinc-950/50 sm:h-40 sm:w-40 xl:h-48 xl:w-48">
+                <Image
+                  src={logo}
+                  alt="Logo"
+                  className="h-full w-full object-cover"
+                  priority
+                />
               </div>
 
-              {/* Text content */}
+              {/* Text content - takes full width of its column now */}
               <div className="space-y-6">
                 <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-200">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -37,7 +35,7 @@ export default function Home() {
                 </div>
 
                 <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-                  {siteConfig.name}
+                  DR. {siteConfig.name}
                   <span className="text-zinc-500 dark:text-zinc-300">
                     {" "}
                     — {siteConfig.title}
@@ -77,7 +75,7 @@ export default function Home() {
             </div>
 
             {/* Right Section: Portrait */}
-            <div className="relative">
+            <div className="relative lg:pt-4">
               <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-br from-sky-500/20 via-emerald-500/10 to-transparent blur-2xl" />
               <div className="overflow-hidden rounded-[2rem] border border-black/10 bg-white/60 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50">
                 <Image
