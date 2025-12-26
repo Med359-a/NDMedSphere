@@ -148,7 +148,7 @@ export function BooksClient() {
                 Reading list
               </h1>
               <p className="max-w-2xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                Browse recommended books and study notes. Editing is admin-only.
+                Browse recommended books and study notes.
               </p>
             </div>
 

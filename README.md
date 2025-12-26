@@ -18,18 +18,28 @@ Update:
 
 - `src/lib/site-config.ts`
 
-### Admin access (IP allowlist)
+### Admin access (private token)
 
-This project uses **IP-based whitelisting** for admin permissions:
+This project uses a **private admin token** (not IP-based) for admin permissions:
 
-- If your request comes from a **whitelisted IP**, you’ll see an **“Admin”** badge in the header and you can **create / delete** content.
+- When you log in as admin, you’ll see an **“Admin”** badge in the header and you can **create / delete** content.
 - Everyone else can **view** content only.
 
-Config:
+How it works:
 
-- Default allowlist includes `212.58.103.244`
-- Add more IPs via `ADMIN_IP_ALLOWLIST` (comma/space separated)
-- In local dev, `127.0.0.1` / `::1` are treated as admin automatically.
+1. Set `ADMIN_TOKEN` in `.env.local` (local dev) / Vercel environment variables (production).
+2. Open any page with `?admin=YOUR_TOKEN`, for example:
+   - `http://localhost:3000/?admin=YOUR_TOKEN`
+3. Middleware validates the token and stores it in an **httpOnly cookie**, then redirects you to the same page **without** the token in the URL.
+
+Logout:
+
+- Open `?admin=logout` to clear the admin cookie.
+
+Security notes:
+
+- Treat `ADMIN_TOKEN` like a password: **never share it**.
+- Use a long random token (e.g. `openssl rand -base64 48`).
 
 ### Data storage (MongoDB Atlas)
 
@@ -42,7 +52,7 @@ Environment variables (copy `env.example` → `.env.local` and fill in real valu
 
 - `MONGODB_URI`
 - `MONGODB_DB` (optional, default: `ndmedsphere`)
-- `ADMIN_IP_ALLOWLIST` (optional)
+- `ADMIN_TOKEN` (required for admin access)
 
 ### Video uploads (your work portfolio)
 
