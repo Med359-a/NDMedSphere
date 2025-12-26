@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
+import Image from "next/image";
 import { useAdmin } from "@/lib/use-admin";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/container";
 import { useLanguage } from "@/lib/i18n";
+import logo from "../logo.png";
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
@@ -73,9 +75,6 @@ export function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" className="group inline-flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-emerald-500 text-white shadow-sm shadow-sky-500/20">
-            <span className="text-sm font-semibold">DR</span>
-          </span>
           <span className="leading-tight">
             <span className="flex items-center gap-2 text-sm font-semibold tracking-tight">
               <span>{siteConfig.name}</span>

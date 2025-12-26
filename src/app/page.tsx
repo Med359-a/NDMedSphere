@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Container } from "@/components/container";
 import { siteConfig } from "@/lib/site-config";
 import heroImage from "@/image_50348545.jpg";
+import logo from "../logo.png";
 import { useLanguage } from "@/lib/i18n";
 
 export default function Home() {
@@ -12,50 +13,76 @@ export default function Home() {
   return (
     <div>
       <section className="relative overflow-hidden">
+        {/* Logo in the left corner, parallel with the top of the content */}
+        <div className="absolute left-4 top-16 z-10 hidden sm:left-6 md:block lg:left-8 xl:left-12">
+          <div className="relative h-48 w-48 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur transition-transform hover:scale-105 dark:border-white/15 dark:bg-zinc-950/50">
+            <Image
+              src={logo}
+              alt="Logo"
+              className="h-full w-full object-cover"
+              priority
+            />
+          </div>
+        </div>
+
         <Container className="py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-200">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                {t.home.tagline_badge}
-              </div>
+          {/* Mobile Logo (shown only on small screens) */}
+          <div className="mb-8 block md:hidden">
+            <div className="relative h-32 w-32 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50">
+              <Image
+                src={logo}
+                alt="Logo"
+                className="h-full w-full object-cover"
+                priority
+              />
+            </div>
+          </div>
 
-              <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-                {siteConfig.name}
-                <span className="text-zinc-500 dark:text-zinc-300">
-                  {" "}
-                  — {siteConfig.title}
-                </span>
-              </h1>
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div className="space-y-8 lg:pt-4">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/60 px-3 py-1 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-200">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  {t.home.tagline_badge}
+                </div>
 
-              <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
-                {t.home.tagline_main}
-              </p>
-
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/videos"
-                  className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 active:translate-y-px dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
-                >
-                  {t.home.cta_videos}
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:translate-y-px dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-50 dark:hover:bg-zinc-950"
-                >
-                  {t.home.cta_contact}
-                </Link>
-              </div>
-
-              <div className="flex flex-wrap gap-2 pt-2">
-                {t.home.focus_areas.map((s) => (
-                  <span
-                    key={s}
-                    className="rounded-full bg-zinc-900/5 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-200"
-                  >
-                    {s}
+                <h1 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
+                  {siteConfig.name}
+                  <span className="text-zinc-500 dark:text-zinc-300">
+                    {" "}
+                    — {siteConfig.title}
                   </span>
-                ))}
+                </h1>
+
+                <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
+                  {t.home.tagline_main}
+                </p>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/videos"
+                    className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 active:translate-y-px dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+                  >
+                    {t.home.cta_videos}
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/60 px-5 py-3 text-sm font-semibold text-zinc-900 shadow-sm backdrop-blur transition hover:bg-white active:translate-y-px dark:border-white/15 dark:bg-zinc-950/50 dark:text-zinc-50 dark:hover:bg-zinc-950"
+                  >
+                    {t.home.cta_contact}
+                  </Link>
+                </div>
+
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {t.home.focus_areas.map((s) => (
+                    <span
+                      key={s}
+                      className="rounded-full bg-zinc-900/5 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-200"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
 

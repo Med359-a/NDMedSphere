@@ -1,9 +1,12 @@
 "use client";
 
+import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site-config";
 import { Container } from "@/components/container";
 import { useLanguage } from "@/lib/i18n";
+import logo from "../logo.png";
 
 export function SiteFooter() {
   const { t } = useLanguage();
@@ -21,13 +24,22 @@ export function SiteFooter() {
   return (
     <footer className="border-t border-black/5 bg-white/60 backdrop-blur dark:border-white/10 dark:bg-zinc-950/60">
       <Container className="grid gap-10 py-12 md:grid-cols-3">
-        <div className="space-y-3">
-          <div className="text-sm font-semibold">{siteConfig.name}</div>
-          <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-300">
-            {t.footer.tagline}
-          </p>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">
-            © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights}
+        <div className="space-y-4">
+          <div className="relative h-20 w-20 overflow-hidden rounded-full">
+            <Image
+              src={logo}
+              alt="Logo"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-sm font-semibold">{siteConfig.name}</div>
+            <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-300">
+              {t.footer.tagline}
+            </p>
+            <div className="text-xs text-zinc-500 dark:text-zinc-400">
+              © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights}
+            </div>
           </div>
         </div>
 

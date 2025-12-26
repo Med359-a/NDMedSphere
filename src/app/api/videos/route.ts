@@ -42,8 +42,8 @@ export async function GET() {
       .toArray();
 
     return NextResponse.json(docs.map(toItem), {
-      headers: { "Cache-Control": "no-store" },
-    });
+    headers: { "Cache-Control": "no-store" },
+  });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to load videos." },
@@ -61,47 +61,47 @@ export async function POST(request: NextRequest) {
     const db = await getDb();
     const bucket = new GridFSBucket(db, { bucketName: "videos" });
 
-    const formData = await request.formData();
-    const title = String(formData.get("title") ?? "").trim();
-    const description = String(formData.get("description") ?? "").trim();
+  const formData = await request.formData();
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
 
-    const candidates = formData.getAll("files");
-    const single = formData.get("file");
-    const entries = candidates.length ? candidates : single ? [single] : [];
+  const candidates = formData.getAll("files");
+  const single = formData.get("file");
+  const entries = candidates.length ? candidates : single ? [single] : [];
 
-    const files = entries.filter((v): v is File => typeof v === "object");
-    if (files.length === 0) {
+  const files = entries.filter((v): v is File => typeof v === "object");
+  if (files.length === 0) {
+    return NextResponse.json(
+      { error: "No files found. Use field name 'file' or 'files'." },
+      { status: 400 },
+    );
+  }
+
+  // Soft limit: 250MB per file (still parsed in-memory by formData()).
+  const MAX_BYTES = 250 * 1024 * 1024;
+    const now = new Date();
+
+  const created: VideoItem[] = [];
+    const collection = db.collection<VideoDoc>("videos");
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+
+    if (!file.type.startsWith("video/")) {
       return NextResponse.json(
-        { error: "No files found. Use field name 'file' or 'files'." },
-        { status: 400 },
+        { error: `Unsupported file type: ${file.type || "unknown"}` },
+        { status: 415 },
       );
     }
 
-    // Soft limit: 250MB per file (still parsed in-memory by formData()).
-    const MAX_BYTES = 250 * 1024 * 1024;
-    const now = new Date();
+    if (file.size > MAX_BYTES) {
+      return NextResponse.json(
+        { error: `File too large. Max is ${MAX_BYTES} bytes.` },
+        { status: 413 },
+      );
+    }
 
-    const created: VideoItem[] = [];
-    const collection = db.collection<VideoDoc>("videos");
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-
-      if (!file.type.startsWith("video/")) {
-        return NextResponse.json(
-          { error: `Unsupported file type: ${file.type || "unknown"}` },
-          { status: 415 },
-        );
-      }
-
-      if (file.size > MAX_BYTES) {
-        return NextResponse.json(
-          { error: `File too large. Max is ${MAX_BYTES} bytes.` },
-          { status: 413 },
-        );
-      }
-
-      const id = crypto.randomUUID();
+    const id = crypto.randomUUID();
       const resolvedTitle =
         files.length > 1 ? (title ? `${title} (${i + 1})` : file.name) : title || file.name;
 
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         metadata: { originalName: file.name },
       });
 
-      const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = Buffer.from(await file.arrayBuffer());
       await new Promise<void>((resolve, reject) => {
         Readable.from(buffer)
           .pipe(upload)
@@ -127,12 +127,12 @@ export async function POST(request: NextRequest) {
       const doc: VideoDoc = {
         _id: id,
         title: resolvedTitle,
-        description,
+      description,
         fileId,
-        originalName: file.name,
+      originalName: file.name,
         mimeType: file.type || "application/octet-stream",
-        size: file.size,
-        createdAt: now,
+      size: file.size,
+      createdAt: now,
       };
 
       try {
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       created.push(toItem(doc));
     }
 
-    return NextResponse.json({ items: created }, { status: 201 });
+  return NextResponse.json({ items: created }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Upload failed." },
@@ -173,19 +173,19 @@ export async function DELETE(request: NextRequest) {
     const collection = db.collection<VideoDoc>("videos");
     const doc = await collection.findOne({ _id: id });
     if (!doc) {
-      return NextResponse.json({ error: "Not found." }, { status: 404 });
-    }
+    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  }
 
     await collection.deleteOne({ _id: id });
 
     const bucket = new GridFSBucket(db, { bucketName: "videos" });
-    try {
+  try {
       await bucket.delete(doc.fileId);
-    } catch {
-      // ignore
-    }
+  } catch {
+    // ignore
+  }
 
-    return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Delete failed." },
