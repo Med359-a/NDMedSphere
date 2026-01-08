@@ -11,7 +11,7 @@ import logo from "../logo.png";
 export function SiteFooter() {
   const { t } = useLanguage();
 
-  const links = [
+const links = [
     { href: "/about", label: t.nav.about },
     { href: "/books", label: t.nav.books },
     { href: "/usmle", label: t.nav.usmle },
@@ -33,11 +33,11 @@ export function SiteFooter() {
             />
           </div>
           <div className="space-y-2">
-            <div className="text-sm font-semibold">{siteConfig.name}</div>
-            <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-300">
+          <div className="text-sm font-semibold">{siteConfig.name}</div>
+          <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-300">
               {t.footer.tagline}
-            </p>
-            <div className="text-xs text-zinc-500 dark:text-zinc-400">
+          </p>
+          <div className="text-xs text-zinc-500 dark:text-zinc-400">
               © {new Date().getFullYear()} {siteConfig.name}. {t.footer.rights}
             </div>
           </div>

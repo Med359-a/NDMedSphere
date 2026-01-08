@@ -75,7 +75,7 @@ export function SiteHeader() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
       <Container className="flex h-16 items-center justify-between gap-4">
         <Link href="/" className="group inline-flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-sm font-bold text-white shadow-sm ring-1 ring-black/5 transition group-hover:scale-105">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-xs font-bold text-white shadow-sm ring-1 ring-black/5 transition group-hover:scale-105">
             DR
           </div>
           <span className="leading-tight">

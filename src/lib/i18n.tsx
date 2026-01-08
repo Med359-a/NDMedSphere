@@ -56,17 +56,17 @@ export const dictionary = {
     },
     about: {
       title: "About",
-      intro: "I am a medical student with a strong academic foundation and a clear commitment to continuous professional development. I actively pursue in-depth medical education, balancing theoretical knowledge with practical application in clinical settings.",
+      intro: "The website was created as an independent medical education platform dedicated to the dissemination of evidence-based, structured, and clinically relevant medical knowledge.",
       glance: "At a glance",
       focus: "Focus areas",
-      approach_title: "Approach",
-      approach_body_1: "I participate in medical research projects, which allows me to develop critical thinking skills, analytical reasoning, and a solid understanding of evidence-based medicine. I have a strong command of core medical subjects and am capable of effectively teaching and explaining complex medical concepts to others.",
-      approach_body_2: "In parallel with my studies, I am gaining hands-on clinical experience in a neurosurgery department, where I am exposed to real-world medical practice and advanced clinical decision-making. My goal is to integrate knowledge, research, and clinical experience to provide high-quality, patient-centered medical care.",
+      approach_title: "Platform Content",
+      approach_body_1: "The platform reflects my academic interests, materials developed throughout the learning process, and approaches grounded in contemporary international medical sources. The content includes educational videos, clinical case discussions, medical imaging, and current international guidelines.",
+      approach_body_2: "The material is structured with the aim of presenting complex medical topics clearly, systematically, and in a practical manner, with an emphasis on clinical reasoning and analytical thinking rather than passive information delivery.",
       cards: [
-        { title: "Evidence‑based", body: "Grounded in best practices, explained simply." },
-        { title: "Clear structure", body: "Short formats that get to the point quickly." },
-        { title: "Practical demos", body: "Walkthroughs focused on technique and safety." },
-        { title: "Professional standards", body: "Clean presentation and careful documentation." },
+        { title: "For medical professionals", body: "Content intended for medical students, residents, and healthcare professionals focused on continuous professional development." },
+        { title: "Evidence-based", body: "Grounded in international medical standards and contemporary scientific evidence." },
+        { title: "Continuously updated", body: "Regularly reviewed and updated in accordance with new research and international recommendations." },
+        { title: "Practical approach", body: "Emphasis on clinical reasoning and analytical thinking rather than passive information delivery." },
       ]
     }
   },
@@ -121,17 +121,17 @@ export const dictionary = {
     },
     about: {
       title: "შესახებ",
-      intro: "მე ვარ სამედიცინო სტუდენტი ძლიერი აკადემიური საფუძვლით და პროფესიული განვითარების მკაფიო ვალდებულებით. აქტიურად ვეუფლები ღრმა სამედიცინო განათლებას, ვაბალანსებ თეორიულ ცოდნას კლინიკურ გარემოში პრაქტიკული გამოყენებით.",
+      intro: "ვებსაიტი შეიქმნა როგორც დამოუკიდებელი სამედიცინო განათლების პლატფორმა, რომელიც ეძღვნება მტკიცებულებებზე დაფუძნებული, სტრუქტურირებული და კლინიკურად აქტუალური სამედიცინო ცოდნის გავრცელებას.",
       glance: "მიმოხილვა",
       focus: "ფოკუსირების სფეროები",
-      approach_title: "მიდგომა",
-      approach_body_1: "ვმონაწილეობ სამედიცინო კვლევით პროექტებში, რაც საშუალებას მაძლევს განვივითარო კრიტიკული აზროვნების უნარები, ანალიტიკური მსჯელობა და მტკიცებულებებზე დაფუძნებული მედიცინის მყარი გაგება. მაქვს ძირითადი სამედიცინო საგნების ძლიერი ცოდნა და შემიძლია ეფექტურად ვასწავლო და ავხსნა რთული სამედიცინო კონცეფციები.",
-      approach_body_2: "სწავლის პარალელურად, ვიღებ პრაქტიკულ კლინიკურ გამოცდილებას ნეიროქირურგიის დეპარტამენტში, სადაც ვეცნობი რეალურ სამედიცინო პრაქტიკას და კლინიკური გადაწყვეტილების მიღების პროცესს. ჩემი მიზანია გავაერთიანო ცოდნა, კვლევა და კლინიკური გამოცდილება მაღალი ხარისხის, პაციენტზე ორიენტირებული სამედიცინო მომსახურების მისაწოდებლად.",
+      approach_title: "პლატფორმის შინაარსი",
+      approach_body_1: "პლატფორმა ასახავს ჩემს აკადემიურ ინტერესებს, სწავლის პროცესში განვითარებულ მასალებს და თანამედროვე საერთაშორისო სამედიცინო წყაროებზე დაფუძნებულ მიდგომებს. შინაარსი მოიცავს საგანმანათლებლო ვიდეოებს, კლინიკური ქეისების განხილვებს, სამედიცინო სამკვეთო მასალებს და დღესდღეობით მოქმედ საერთაშორისო სახელმძღვანელოებს.",
+      approach_body_2: "მასალა სტრუქტურირებულია რთული სამედიცინო თემების ნათლად, სისტემატიურად და პრაქტიკული ხერხით წარმოდგენის მიზნით, კლინიკური მსჯელობისა და ანალიტიკური აზროვნების ხაზგასმით, პასიური ინფორმაციის გადაცემის ნაცვლად.",
       cards: [
-        { title: "მტკიცებულებებზე დაფუძნებული", body: "დაფუძნებული საუკეთესო პრაქტიკაზე, ახსნილი მარტივად." },
-        { title: "მკაფიო სტრუქტურა", body: "მოკლე ფორმატები, რომლებიც პირდაპირ საქმეზე გადადის." },
-        { title: "პრაქტიკული დემოები", body: "ტექნიკასა და უსაფრთხოებაზე ფოკუსირებული მიმოხილვები." },
-        { title: "პროფესიული სტანდარტები", body: "სუფთა პრეზენტაცია და ფრთხილი დოკუმენტაცია." },
+        { title: "სამედიცინო პროფესიონალებისთვის", body: "შინაარსი განკუთვნილია სამედიცინო სტუდენტებისთვის, რეზიდენტებისთვის და ჯანდაცვის მუშაკებისთვის, რომლებიც ფოკუსირებულია პროფესიული განვითარებაზე." },
+        { title: "მტკიცებულებებზე დაფუძნებული", body: "დაფუძნებული საერთაშორისო სამედიცინო სტანდარტებზე და თანამედროვე სამეცნიერო მტკიცებულებებზე." },
+        { title: "მუდმივად განახლებული", body: "რეგულარულად გადამოწმებული და განახლებული ახალი კვლევებისა და საერთაშორისო რეკომენდაციების შესაბამისად." },
+        { title: "პრაქტიკული მიდგომა", body: "კლინიკური მსჯელობის და ანალიტიკური აზროვნების ხაზგასმა პასიური ინფორმაციის გადაცემის ნაცვლად." },
       ]
     }
   }
