@@ -18,7 +18,7 @@ export default function Home() {
             {/* Left Section: Logo Stacked Above Text */}
             <div className="space-y-10 lg:pt-4">
               {/* Logo container - no longer absolutely positioned to prevent overlap and shrinking */}
-              <div className="relative h-32 w-32 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur transition-transform hover:scale-105 dark:border-white/15 dark:bg-zinc-950/50 sm:h-40 sm:w-40 xl:h-48 xl:w-48">
+              <div className="relative h-20 w-20 overflow-hidden rounded-full border border-black/10 bg-white/60 shadow-sm backdrop-blur transition-transform hover:scale-105 dark:border-white/15 dark:bg-zinc-950/50 sm:h-24 sm:w-24 xl:h-28 xl:w-28">
                 <Image
                   src={logo}
                   alt="Logo"

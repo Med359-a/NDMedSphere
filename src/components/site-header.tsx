@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
-import Image from "next/image";
 import { useAdmin } from "@/lib/use-admin";
 import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import { Container } from "@/components/container";
 import { useLanguage } from "@/lib/i18n";
-import logo from "../logo.png";
+
 
 function isActivePath(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
