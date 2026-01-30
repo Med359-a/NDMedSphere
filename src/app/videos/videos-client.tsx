@@ -39,9 +39,11 @@ export function VideosClient() {
 
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
+  const [youtubeUrl, setYoutubeUrl] = React.useState("");
   const [files, setFiles] = React.useState<File[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [search, setSearch] = React.useState("");
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const refresh = React.useCallback(async () => {
@@ -69,13 +71,14 @@ export function VideosClient() {
 
   async function onUpload(e: React.FormEvent) {
     e.preventDefault();
-    if (files.length === 0) return;
+    if (files.length === 0 && !youtubeUrl) return;
 
     setUploading(true);
     try {
       const fd = new FormData();
       fd.append("title", title);
       fd.append("description", description);
+      fd.append("youtubeUrl", youtubeUrl);
       for (const f of files) fd.append("files", f);
 
       const res = await fetch("/api/videos", { method: "POST", body: fd });
@@ -86,6 +89,7 @@ export function VideosClient() {
 
       setTitle("");
       setDescription("");
+      setYoutubeUrl("");
       setFiles([]);
       if (fileInputRef.current) fileInputRef.current.value = "";
       await refresh();
@@ -135,12 +139,22 @@ export function VideosClient() {
               <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-700 dark:text-zinc-200">
                 {isAdmin ? (
                   <>
-                    Procedure demos, case walkthroughs, or educational clips. 
+                    Procedure demos, case walkthroughs, or educational clips.
                   </>
                 ) : (
                   <>Browse uploaded videos.</>
                 )}
               </p>
+
+              <div className="relative max-w-sm pt-4">
+                <input
+                  type="text"
+                  placeholder="Search videos..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full rounded-xl border border-black/10 bg-white/70 px-4 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
+                />
+              </div>
             </div>
 
             {isAdmin ? (
@@ -173,6 +187,19 @@ export function VideosClient() {
                       onChange={(e) => setDescription(e.target.value)}
                       className="min-h-24 rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
                       placeholder="Add context, goals, or what viewers should learn…"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <label className="text-sm font-medium" htmlFor="youtubeUrl">
+                      YouTube Link (optional)
+                    </label>
+                    <input
+                      id="youtubeUrl"
+                      value={youtubeUrl}
+                      onChange={(e) => setYoutubeUrl(e.target.value)}
+                      className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
+                      placeholder="https://www.youtube.com/watch?v=..."
                     />
                   </div>
 
@@ -214,7 +241,7 @@ export function VideosClient() {
 
                   <button
                     type="submit"
-                    disabled={uploading || files.length === 0}
+                    disabled={uploading || (files.length === 0 && !youtubeUrl)}
                     className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-emerald-600 px-5 text-sm font-semibold text-white shadow-sm shadow-emerald-500/20 transition disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     {uploading ? "Uploading…" : "Upload video(s)"}
@@ -272,49 +299,77 @@ export function VideosClient() {
 
           {load.status !== "loading" && items.length ? (
             <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {items.map((v) => (
-                <div
-                  key={v.id}
-                  className="overflow-hidden rounded-2xl border border-black/10 bg-white/60 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50"
-                >
-                  <div className="bg-black">
-                    <video
-                      className="h-56 w-full object-cover"
-                      controls
-                      preload="metadata"
-                      src={`/api/videos/stream?id=${encodeURIComponent(v.id)}`}
-                    />
-                  </div>
-                  <div className="space-y-2 p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="truncate text-sm font-semibold">
-                          {v.title || v.originalName}
+              {items
+                .filter((v) => {
+                  if (!search) return true;
+                  const q = search.toLowerCase();
+                  return (
+                    v.title.toLowerCase().includes(q) ||
+                    v.originalName?.toLowerCase().includes(q)
+                  );
+                })
+                .map((v) => (
+                  <div
+                    key={v.id}
+                    className="overflow-hidden rounded-2xl border border-black/10 bg-white/60 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50"
+                  >
+                    <div className="bg-black">
+                      {v.youtubeUrl ? (
+                        <iframe
+                          className="h-56 w-full"
+                          src={(() => {
+                            const url = v.youtubeUrl || "";
+                            let id = "";
+                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                            const match = url.match(regExp);
+                            if (match && match[2].length === 11) {
+                              id = match[2];
+                            }
+                            return `https://www.youtube.com/embed/${id}`;
+                          })()}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          className="h-56 w-full object-cover"
+                          controls
+                          preload="metadata"
+                          src={`/api/videos/stream?id=${encodeURIComponent(v.id)}`}
+                        />
+                      )}
+                    </div>
+                    <div className="space-y-2 p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <div className="truncate text-sm font-semibold">
+                            {v.title || v.originalName}
+                          </div>
+                          <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            {formatDate(v.createdAt)}
+                            {v.size ? ` • ${formatBytes(v.size)}` : null}
+                          </div>
                         </div>
-                        <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                          {formatDate(v.createdAt)} • {formatBytes(v.size)}
-                        </div>
+                        {isAdmin ? (
+                          <button
+                            type="button"
+                            onClick={() => void onDelete(v.id)}
+                            disabled={deletingId === v.id}
+                            className="shrink-0 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-70 dark:text-rose-200"
+                          >
+                            {deletingId === v.id ? "Deleting…" : "Delete"}
+                          </button>
+                        ) : null}
                       </div>
-                      {isAdmin ? (
-                        <button
-                          type="button"
-                          onClick={() => void onDelete(v.id)}
-                          disabled={deletingId === v.id}
-                          className="shrink-0 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-70 dark:text-rose-200"
-                        >
-                          {deletingId === v.id ? "Deleting…" : "Delete"}
-                        </button>
+
+                      {v.description ? (
+                        <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                          {v.description}
+                        </p>
                       ) : null}
                     </div>
-
-                    {v.description ? (
-                      <p className="text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                        {v.description}
-                      </p>
-                    ) : null}
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           ) : null}
         </Container>
