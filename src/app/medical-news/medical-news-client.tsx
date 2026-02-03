@@ -25,7 +25,7 @@ function splitTags(raw: string) {
     .filter(Boolean);
 }
 
-export function PersonalStudyingClient() {
+export function MedicalNewsClient() {
   const admin = useAdmin();
   const isAdmin = admin.isAdmin;
 
@@ -45,7 +45,7 @@ export function PersonalStudyingClient() {
   const refresh = React.useCallback(async () => {
     try {
       setLoad({ status: "loading" });
-      const res = await fetch("/api/personal-studying", { cache: "no-store" });
+      const res = await fetch("/api/medical-news", { cache: "no-store" });
       if (!res.ok) {
         const payload = (await res.json().catch(() => null)) as { error?: string } | null;
         throw new Error(payload?.error || `Failed to load notes (${res.status})`);
@@ -80,7 +80,7 @@ export function PersonalStudyingClient() {
         fd.append("file", file);
       }
 
-      const res = await fetch("/api/personal-studying", {
+      const res = await fetch("/api/medical-news", {
         method: "POST",
         body: fd,
       });
@@ -114,7 +114,7 @@ export function PersonalStudyingClient() {
   async function onDelete(id: string) {
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/personal-studying?id=${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/medical-news?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -323,7 +323,7 @@ export function PersonalStudyingClient() {
                   {s.imageFileId ? (
                     <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                       <img
-                        src={`/api/personal-studying/image?id=${s.imageFileId}`}
+                        src={`/api/medical-news/image?id=${s.imageFileId}`}
                         alt={s.title}
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />

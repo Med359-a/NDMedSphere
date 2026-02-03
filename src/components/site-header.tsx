@@ -55,7 +55,7 @@ export function SiteHeader() {
     { href: "/usmle", label: t.nav.usmle },
     { href: "/cases", label: t.nav.cases },
     { href: "/videos", label: t.nav.videos },
-    { href: "/personal-studying", label: t.nav.news },
+    { href: "/medical-news", label: t.nav.news },
     { href: "/contact", label: t.nav.contact },
   ];
 
