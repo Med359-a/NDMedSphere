@@ -5,6 +5,7 @@ import * as React from "react";
 import { Container } from "@/components/container";
 import type { StudyItem } from "@/lib/content-types";
 import { useAdmin } from "@/lib/use-admin";
+import { StudyModal } from "@/components/study-modal";
 
 type LoadState =
   | { status: "loading" }
@@ -30,6 +31,7 @@ export function PersonalStudyingClient() {
 
   const [load, setLoad] = React.useState<LoadState>({ status: "loading" });
   const [items, setItems] = React.useState<StudyItem[]>([]);
+  const [selectedItem, setSelectedItem] = React.useState<StudyItem | null>(null);
 
   const [title, setTitle] = React.useState("");
   const [notes, setNotes] = React.useState("");
@@ -291,11 +293,14 @@ export function PersonalStudyingClient() {
               {items.map((s) => (
                 <div
                   key={s.id}
-                  className="rounded-[2rem] border border-black/10 bg-white/60 p-8 shadow-sm backdrop-blur dark:border-white/15 dark:bg-zinc-950/50"
+                  onClick={() => setSelectedItem(s)}
+                  className="group relative flex flex-col cursor-pointer rounded-[2rem] border border-black/10 bg-white/60 p-6 shadow-sm backdrop-blur transition hover:scale-[1.02] hover:bg-white hover:shadow-md dark:border-white/15 dark:bg-zinc-950/50 dark:hover:bg-zinc-950"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="truncate text-lg font-semibold">{s.title}</div>
+                      <div className="truncate text-lg font-semibold group-hover:text-emerald-700 dark:group-hover:text-emerald-400 text-zinc-900 dark:text-zinc-50 transition-colors">
+                        {s.title}
+                      </div>
                       <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                         {formatDate(s.createdAt)}
                       </div>
@@ -303,7 +308,10 @@ export function PersonalStudyingClient() {
                     {isAdmin ? (
                       <button
                         type="button"
-                        onClick={() => void onDelete(s.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          void onDelete(s.id);
+                        }}
                         disabled={deletingId === s.id}
                         className="shrink-0 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-500/15 disabled:cursor-not-allowed disabled:opacity-70 dark:text-rose-200"
                       >
@@ -313,46 +321,33 @@ export function PersonalStudyingClient() {
                   </div>
 
                   {s.imageFileId ? (
-                    <div className="mt-4">
+                    <div className="mt-4 aspect-video w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
                       <img
                         src={`/api/personal-studying/image?id=${s.imageFileId}`}
                         alt={s.title}
-                        className="max-h-96 rounded-lg object-contain"
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     </div>
-                  ) : null}
-
-                  {s.url ? (
-                    <a
-                      href={s.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-4 inline-flex items-center text-sm font-semibold text-emerald-700 hover:underline dark:text-emerald-400"
-                    >
-                      Read more →
-                    </a>
-                  ) : null}
-
-                  <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-                    {s.notes}
-                  </p>
-
-                  {s.tags.length ? (
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {s.tags.map((t) => (
-                        <span
-                          key={t}
-                          className="rounded-full bg-zinc-900/5 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-200"
-                        >
-                          {t}
-                        </span>
-                      ))}
+                  ) : (
+                    <div className="mt-4 flex aspect-video w-full items-center justify-center rounded-xl bg-zinc-100/50 dark:bg-zinc-800/50">
+                      <span className="text-zinc-400 dark:text-zinc-600">No Image</span>
                     </div>
-                  ) : null}
+                  )}
+
+                  <div className="mt-auto pt-4 flex items-center text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                    <span>Read Note</span>
+                    <svg className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
                 </div>
               ))}
             </div>
           ) : null}
+
+          {selectedItem && (
+            <StudyModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+          )}
         </Container>
       </section>
     </div>

@@ -312,7 +312,7 @@ export function UsmleClient() {
                   ) : null}
 
                   {item.description ? (
-                    <p className="mt-4 whitespace-pre-wrap text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+                    <p className="mt-4 whitespace-pre-wrap break-words text-sm leading-6 text-zinc-600 dark:text-zinc-300">
                       {item.description}
                     </p>
                   ) : null}
