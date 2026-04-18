@@ -1,56 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { GridFSBucket, ObjectId } from "mongodb";
-import { Readable } from "node:stream";
-import type { BookItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
-import { getDb } from "@/lib/mongodb";
+import { buildStoragePath, normalizeUrl } from "@/lib/content-utils";
+import { type BookRow, toBookItem } from "@/lib/supabase-content";
+import {
+  getSupabaseAdmin,
+  removeStorageObject,
+  STORAGE_BUCKETS,
+  uploadStorageObject,
+} from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type BookDoc = {
-  _id: string;
-  title: string;
-  author?: string;
-  url?: string;
-  notes?: string;
-  fileId?: ObjectId;
-  createdAt: Date;
-};
-
-function toItem(doc: BookDoc): BookItem {
-  return {
-    id: doc._id,
-    title: doc.title,
-    author: doc.author,
-    url: doc.url,
-    notes: doc.notes,
-    fileId: doc.fileId?.toString(),
-    createdAt: doc.createdAt.toISOString(),
-  };
-}
-
-function normalizeUrl(value: string) {
-  const v = value.trim();
-  if (!v) return "";
-  try {
-    return new URL(v).toString();
-  } catch {
-    return "";
-  }
-}
-
 export async function GET() {
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<BookDoc>("books")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const { data, error } = await getSupabaseAdmin()
+      .from("books")
+      .select("id, title, author, url, notes, file_path, file_name, mime_type, created_at")
+      .order("created_at", { ascending: false });
 
-    return NextResponse.json(docs.map(toItem), {
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json(((data ?? []) as BookRow[]).map(toBookItem), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
@@ -67,10 +39,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const bucket = new GridFSBucket(db, { bucketName: "books" });
-
-    // Handle multipart form data
     let body: {
       title: string;
       author: string;
@@ -87,10 +55,18 @@ export async function POST(request: NextRequest) {
         author: String(formData.get("author") ?? "").trim(),
         url: String(formData.get("url") ?? "").trim(),
         notes: String(formData.get("notes") ?? "").trim(),
-        file: (formData.get("file") as File) || null,
+        file: (formData.get("file") as File | null) ?? null,
       };
     } else {
-      const json = (await request.json().catch(() => null)) as any;
+      const json = (await request.json().catch(() => null)) as
+        | {
+            title?: unknown;
+            author?: unknown;
+            url?: unknown;
+            notes?: unknown;
+          }
+        | null;
+
       body = {
         title: String(json?.title ?? "").trim(),
         author: String(json?.author ?? "").trim(),
@@ -110,46 +86,51 @@ export async function POST(request: NextRequest) {
     }
 
     const id = crypto.randomUUID();
-    let fileId: ObjectId | undefined;
+    const createdAt = new Date().toISOString();
+    let filePath: string | null = null;
+    let fileName: string | null = null;
+    let mimeType: string | null = null;
 
-    if (body.file) {
+    if (body.file && body.file.size > 0) {
       if (body.file.type !== "application/pdf") {
         return NextResponse.json({ error: "Only PDF files are allowed." }, { status: 415 });
       }
 
-      // 50MB limit for PDFs
       if (body.file.size > 50 * 1024 * 1024) {
         return NextResponse.json({ error: "File too large (max 50MB)." }, { status: 413 });
       }
 
-      const upload = bucket.openUploadStream(id, {
-        contentType: body.file.type,
-        metadata: { originalName: body.file.name },
-      });
-
-      const buffer = Buffer.from(await body.file.arrayBuffer());
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(buffer)
-          .pipe(upload)
-          .on("error", reject)
-          .on("finish", () => resolve());
-      });
-
-      fileId = upload.id as ObjectId;
+      fileName = body.file.name;
+      mimeType = body.file.type || "application/pdf";
+      filePath = buildStoragePath([id], body.file.name || `${id}.pdf`);
+      await uploadStorageObject(STORAGE_BUCKETS.books, filePath, body.file);
     }
 
-    const doc: BookDoc = {
-      _id: id,
+    const row: BookRow = {
+      id,
       title: body.title,
-      author: body.author || undefined,
-      url: url || undefined,
-      notes: body.notes || undefined,
-      fileId,
-      createdAt: new Date(),
+      author: body.author || null,
+      url: url || null,
+      notes: body.notes || null,
+      file_path: filePath,
+      file_name: fileName,
+      mime_type: mimeType,
+      created_at: createdAt,
     };
 
-    await db.collection<BookDoc>("books").insertOne(doc);
-    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+    const { error } = await getSupabaseAdmin().from("books").insert(row);
+    if (error) {
+      if (filePath) {
+        try {
+          await removeStorageObject(STORAGE_BUCKETS.books, filePath);
+        } catch {
+          // ignore cleanup failure
+        }
+      }
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ item: toBookItem(row) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to create book." },
@@ -169,22 +150,27 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const collection = db.collection<BookDoc>("books");
-    const doc = await collection.findOne({ _id: id });
+    const { data, error } = await getSupabaseAdmin()
+      .from("books")
+      .select("id, file_path")
+      .eq("id", id)
+      .limit(1);
 
-    if (!doc) {
+    if (error) throw new Error(error.message);
+
+    const row = data?.[0] as { id: string; file_path: string | null } | undefined;
+    if (!row) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    await collection.deleteOne({ _id: id });
+    const { error: deleteError } = await getSupabaseAdmin().from("books").delete().eq("id", id);
+    if (deleteError) throw new Error(deleteError.message);
 
-    if (doc.fileId) {
-      const bucket = new GridFSBucket(db, { bucketName: "books" });
+    if (row.file_path) {
       try {
-        await bucket.delete(doc.fileId);
+        await removeStorageObject(STORAGE_BUCKETS.books, row.file_path);
       } catch {
-        // ignore if file missing
+        // ignore storage cleanup failure
       }
     }
 
@@ -196,4 +182,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-

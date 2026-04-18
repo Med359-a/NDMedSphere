@@ -2,54 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import type { TopicItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
-import { getDb } from "@/lib/mongodb";
+import { listCaseTopics } from "@/lib/supabase-content";
+import { getSupabaseAdmin, removeStorageObject, STORAGE_BUCKETS } from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// MongoDB Document Schema
-export type TopicDoc = {
-  _id: string;
-  title: string;
-  description?: string;
-  quizzes: Array<{
-    id: string;
-    question: string;
-    imageFileId?: string; // stored as string ID from GridFS
-    answers: Array<{ id: string; text: string; isCorrect: boolean }>;
-    explanation?: string;
-    createdAt: Date;
-  }>;
-  createdAt: Date;
-};
-
-function toItem(doc: TopicDoc): TopicItem {
-  return {
-    id: doc._id,
-    title: doc.title,
-    description: doc.description,
-    quizzes: (doc.quizzes || []).map((q) => ({
-      id: q.id,
-      question: q.question,
-      imageFileId: q.imageFileId,
-      answers: q.answers,
-      explanation: q.explanation,
-      createdAt: q.createdAt.toISOString(),
-    })),
-    createdAt: doc.createdAt.toISOString(),
-  };
-}
-
 export async function GET() {
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<TopicDoc>("topics") // Renamed collection to 'topics' to avoid conflict/confusion, or migrate 'cases'
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
-
-    return NextResponse.json(docs.map(toItem), {
+    const topics = await listCaseTopics();
+    return NextResponse.json(topics, {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
@@ -77,16 +39,24 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const doc: TopicDoc = {
-      _id: crypto.randomUUID(),
+    const item: TopicItem = {
+      id: crypto.randomUUID(),
       title,
-      description,
+      description: description || undefined,
       quizzes: [],
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
     };
-    await db.collection<TopicDoc>("topics").insertOne(doc);
-    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+
+    const { error } = await getSupabaseAdmin().from("case_topics").insert({
+      id: item.id,
+      title: item.title,
+      description: item.description ?? null,
+      created_at: item.createdAt,
+    });
+
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json({ item }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to create topic." },
@@ -106,15 +76,40 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const res = await db.collection<TopicDoc>("topics").deleteOne({ _id: id });
-    
-    // Ideally we should also delete all images associated with quizzes in this topic
-    // But for now, we'll rely on a manual cleanup or future improvement
-    
-    if (res.deletedCount === 0) {
+    const supabase = getSupabaseAdmin();
+
+    const { data: topicRows, error: topicError } = await supabase
+      .from("case_topics")
+      .select("id")
+      .eq("id", id)
+      .limit(1);
+
+    if (topicError) throw new Error(topicError.message);
+    if (!topicRows?.length) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
+
+    const { data: quizRows, error: quizError } = await supabase
+      .from("case_quizzes")
+      .select("image_path")
+      .eq("topic_id", id);
+
+    if (quizError) throw new Error(quizError.message);
+
+    const { error: deleteError } = await supabase.from("case_topics").delete().eq("id", id);
+    if (deleteError) throw new Error(deleteError.message);
+
+    for (const quiz of quizRows ?? []) {
+      const imagePath = (quiz as { image_path: string | null }).image_path;
+      if (!imagePath) continue;
+
+      try {
+        await removeStorageObject(STORAGE_BUCKETS.caseQuizImages, imagePath);
+      } catch {
+        // ignore cleanup failure
+      }
+    }
+
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(

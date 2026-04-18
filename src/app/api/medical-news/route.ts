@@ -1,71 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { GridFSBucket, ObjectId } from "mongodb";
-import { Readable } from "node:stream";
-import type { StudyItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
-import { getDb } from "@/lib/mongodb";
+import { buildStoragePath, normalizeUrl, parseTags } from "@/lib/content-utils";
+import { type MedicalNewsRow, toStudyItem } from "@/lib/supabase-content";
+import {
+  getSupabaseAdmin,
+  removeStorageObject,
+  STORAGE_BUCKETS,
+  uploadStorageObject,
+} from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type StudyDoc = {
-  _id: string;
-  title: string;
-  notes: string;
-  tags: string[];
-  url?: string;
-  imageFileId?: ObjectId;
-  createdAt: Date;
-};
-
-function toItem(doc: StudyDoc): StudyItem {
-  return {
-    id: doc._id,
-    title: doc.title,
-    notes: doc.notes,
-    tags: Array.isArray(doc.tags) ? doc.tags : [],
-    url: doc.url,
-    imageFileId: doc.imageFileId?.toString(),
-    createdAt: doc.createdAt.toISOString(),
-  };
-}
-
-function parseTags(input: unknown) {
-  const values = Array.isArray(input)
-    ? input.map((v) => String(v))
-    : typeof input === "string"
-      ? input.split(",")
-      : [];
-
-  const cleaned = values
-    .map((v) => v.trim())
-    .filter(Boolean)
-    .map((v) => v.slice(0, 40));
-
-  return Array.from(new Set(cleaned)).slice(0, 12);
-}
-
-function normalizeUrl(value: string) {
-  const v = value.trim();
-  if (!v) return "";
-  try {
-    return new URL(v).toString();
-  } catch {
-    return "";
-  }
-}
-
 export async function GET() {
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<StudyDoc>("personalStudying")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const { data, error } = await getSupabaseAdmin()
+      .from("medical_news")
+      .select("id, title, notes, tags, url, image_path, created_at")
+      .order("created_at", { ascending: false });
 
-    return NextResponse.json(docs.map(toItem), {
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json(((data ?? []) as MedicalNewsRow[]).map(toStudyItem), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
@@ -82,9 +39,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const bucket = new GridFSBucket(db, { bucketName: "news_images" });
-
     let body: {
       title: string;
       notes: string;
@@ -101,10 +55,18 @@ export async function POST(request: NextRequest) {
         notes: String(formData.get("notes") ?? "").trim(),
         tags: parseTags(formData.get("tags")),
         url: String(formData.get("url") ?? "").trim(),
-        file: (formData.get("file") as File) || null,
+        file: (formData.get("file") as File | null) ?? null,
       };
     } else {
-      const json = (await request.json().catch(() => null)) as any;
+      const json = (await request.json().catch(() => null)) as
+        | {
+            title?: unknown;
+            notes?: unknown;
+            tags?: unknown;
+            url?: unknown;
+          }
+        | null;
+
       body = {
         title: String(json?.title ?? "").trim(),
         notes: String(json?.notes ?? "").trim(),
@@ -126,9 +88,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
     }
 
-    let imageFileId: ObjectId | undefined;
+    const id = crypto.randomUUID();
+    const createdAt = new Date().toISOString();
+    let imagePath: string | null = null;
 
-    if (body.file) {
+    if (body.file && body.file.size > 0) {
       if (!body.file.type.startsWith("image/")) {
         return NextResponse.json({ error: "Only image files are allowed." }, { status: 415 });
       }
@@ -137,34 +101,42 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Image too large (max 10MB)." }, { status: 413 });
       }
 
-      const fileId = new ObjectId();
-      const upload = bucket.openUploadStreamWithId(fileId, body.file.name, {
-        contentType: body.file.type,
-      });
-
-      const buffer = Buffer.from(await body.file.arrayBuffer());
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(buffer)
-          .pipe(upload)
-          .on("error", reject)
-          .on("finish", () => resolve());
-      });
-
-      imageFileId = fileId;
+      imagePath = buildStoragePath([id], body.file.name || `${id}.image`);
+      await uploadStorageObject(STORAGE_BUCKETS.medicalNewsImages, imagePath, body.file);
     }
 
-    const doc: StudyDoc = {
-      _id: crypto.randomUUID(),
+    const row: MedicalNewsRow = {
+      id,
       title: body.title,
       notes: body.notes,
       tags: body.tags,
-      url: url || undefined,
-      imageFileId,
-      createdAt: new Date(),
+      url: url || null,
+      image_path: imagePath,
+      created_at: createdAt,
     };
 
-    await db.collection<StudyDoc>("personalStudying").insertOne(doc);
-    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+    const { error } = await getSupabaseAdmin().from("medical_news").insert({
+      id: row.id,
+      title: row.title,
+      notes: row.notes,
+      tags: row.tags,
+      url: row.url,
+      image_path: row.image_path,
+      created_at: row.created_at,
+    });
+
+    if (error) {
+      if (imagePath) {
+        try {
+          await removeStorageObject(STORAGE_BUCKETS.medicalNewsImages, imagePath);
+        } catch {
+          // ignore cleanup failure
+        }
+      }
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ item: toStudyItem(row) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to create note." },
@@ -184,22 +156,31 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const collection = db.collection<StudyDoc>("personalStudying");
-    const doc = await collection.findOne({ _id: id });
+    const { data, error } = await getSupabaseAdmin()
+      .from("medical_news")
+      .select("id, image_path")
+      .eq("id", id)
+      .limit(1);
 
-    if (!doc) {
+    if (error) throw new Error(error.message);
+
+    const row = data?.[0] as { id: string; image_path: string | null } | undefined;
+    if (!row) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    await collection.deleteOne({ _id: id });
+    const { error: deleteError } = await getSupabaseAdmin()
+      .from("medical_news")
+      .delete()
+      .eq("id", id);
 
-    if (doc.imageFileId) {
-      const bucket = new GridFSBucket(db, { bucketName: "news_images" });
+    if (deleteError) throw new Error(deleteError.message);
+
+    if (row.image_path) {
       try {
-        await bucket.delete(doc.imageFileId);
+        await removeStorageObject(STORAGE_BUCKETS.medicalNewsImages, row.image_path);
       } catch {
-        // ignore
+        // ignore cleanup failure
       }
     }
 
@@ -211,4 +192,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-

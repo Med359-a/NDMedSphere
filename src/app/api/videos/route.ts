@@ -1,49 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { Readable } from "node:stream";
-import { GridFSBucket, ObjectId } from "mongodb";
-import type { VideoItem } from "@/lib/video-types";
 import { isAdminRequest } from "@/lib/admin";
-import { getDb } from "@/lib/mongodb";
+import { buildStoragePath, normalizeUrl } from "@/lib/content-utils";
+import type { VideoItem } from "@/lib/video-types";
+import { type VideoRow, toVideoItem } from "@/lib/supabase-content";
+import {
+  getSupabaseAdmin,
+  removeStorageObject,
+  STORAGE_BUCKETS,
+  uploadStorageObject,
+} from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type VideoDoc = {
-  _id: string;
-  title: string;
-  description: string;
-  youtubeUrl?: string; // New field
-  fileId?: ObjectId;   // Now optional
-  originalName?: string; // Now optional
-  mimeType?: string;   // Now optional
-  size?: number;       // Now optional
-  createdAt: Date;
-};
-
-function toItem(doc: VideoDoc): VideoItem {
-  return {
-    id: doc._id,
-    title: doc.title,
-    description: doc.description,
-    youtubeUrl: doc.youtubeUrl,
-    originalName: doc.originalName,
-    mimeType: doc.mimeType,
-    size: doc.size,
-    createdAt: doc.createdAt.toISOString(),
-  };
-}
-
 export async function GET() {
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<VideoDoc>("videos")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const { data, error } = await getSupabaseAdmin()
+      .from("videos")
+      .select("id, title, description, youtube_url, file_path, original_name, mime_type, size, created_at")
+      .order("created_at", { ascending: false });
 
-    return NextResponse.json(docs.map(toItem), {
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json(((data ?? []) as VideoRow[]).map(toVideoItem), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
@@ -60,21 +40,22 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const bucket = new GridFSBucket(db, { bucketName: "videos" });
-
+    const supabase = getSupabaseAdmin();
     const formData = await request.formData();
     const title = String(formData.get("title") ?? "").trim();
     const description = String(formData.get("description") ?? "").trim();
-    const youtubeUrl = String(formData.get("youtubeUrl") ?? "").trim();
+    const rawYoutubeUrl = String(formData.get("youtubeUrl") ?? "").trim();
+    const youtubeUrl = normalizeUrl(rawYoutubeUrl);
+
+    if (rawYoutubeUrl && !youtubeUrl) {
+      return NextResponse.json({ error: "Invalid YouTube URL." }, { status: 400 });
+    }
 
     const candidates = formData.getAll("files");
     const single = formData.get("file");
     const entries = candidates.length ? candidates : single ? [single] : [];
+    const files = entries.filter((value): value is File => value instanceof File);
 
-    const files = entries.filter((v): v is File => typeof v === "object");
-
-    // If no files AND no youtubeUrl, return error
     if (files.length === 0 && !youtubeUrl) {
       return NextResponse.json(
         { error: "No files or YouTube URL found." },
@@ -82,28 +63,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const collection = db.collection<VideoDoc>("videos");
-    const now = new Date();
     const created: VideoItem[] = [];
+    const batchCreatedAt = new Date().toISOString();
 
-    // Handle YouTube URL if present
     if (youtubeUrl) {
-      const id = crypto.randomUUID();
-      const doc: VideoDoc = {
-        _id: id,
+      const row: VideoRow = {
+        id: crypto.randomUUID(),
         title: title || "YouTube Video",
         description,
-        youtubeUrl,
-        createdAt: now,
+        youtube_url: youtubeUrl,
+        file_path: null,
+        original_name: null,
+        mime_type: null,
+        size: null,
+        created_at: batchCreatedAt,
       };
-      await collection.insertOne(doc);
-      created.push(toItem(doc));
+
+      const { error } = await supabase.from("videos").insert({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        youtube_url: row.youtube_url,
+        file_path: row.file_path,
+        original_name: row.original_name,
+        mime_type: row.mime_type,
+        size: row.size,
+        created_at: row.created_at,
+      });
+
+      if (error) throw new Error(error.message);
+      created.push(toVideoItem(row));
     }
 
-    // Soft limit: 250MB per file (still parsed in-memory by formData()).
-    const MAX_BYTES = 250 * 1024 * 1024;
-
-    for (let i = 0; i < files.length; i++) {
+    const maxBytes = 250 * 1024 * 1024;
+    for (let i = 0; i < files.length; i += 1) {
       const file = files[i];
 
       if (!file.type.startsWith("video/")) {
@@ -113,9 +106,9 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      if (file.size > MAX_BYTES) {
+      if (file.size > maxBytes) {
         return NextResponse.json(
-          { error: `File too large. Max is ${MAX_BYTES} bytes.` },
+          { error: `File too large. Max is ${maxBytes} bytes.` },
           { status: 413 },
         );
       }
@@ -123,49 +116,44 @@ export async function POST(request: NextRequest) {
       const id = crypto.randomUUID();
       const resolvedTitle =
         files.length > 1 ? (title ? `${title} (${i + 1})` : file.name) : title || file.name;
+      const filePath = buildStoragePath([id], file.name || `${id}.video`);
 
-      const upload = bucket.openUploadStream(id, {
-        contentType: file.type || "application/octet-stream",
-        metadata: { originalName: file.name },
-      });
+      await uploadStorageObject(STORAGE_BUCKETS.videos, filePath, file);
 
-      const buffer = Buffer.from(await file.arrayBuffer());
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(buffer)
-          .pipe(upload)
-          .on("error", reject)
-          .on("finish", () => resolve());
-      });
-
-      const fileId = upload.id;
-      if (!(fileId instanceof ObjectId)) {
-        // Shouldn't happen with the official driver, but keeps types safe.
-        throw new Error("Unexpected GridFS file id type.");
-      }
-
-      const doc: VideoDoc = {
-        _id: id,
+      const row: VideoRow = {
+        id,
         title: resolvedTitle,
         description,
-        fileId,
-        originalName: file.name,
-        mimeType: file.type || "application/octet-stream",
+        youtube_url: null,
+        file_path: filePath,
+        original_name: file.name,
+        mime_type: file.type || null,
         size: file.size,
-        createdAt: now,
+        created_at: batchCreatedAt,
       };
 
-      try {
-        await collection.insertOne(doc);
-      } catch (e) {
+      const { error } = await supabase.from("videos").insert({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        youtube_url: row.youtube_url,
+        file_path: row.file_path,
+        original_name: row.original_name,
+        mime_type: row.mime_type,
+        size: row.size,
+        created_at: row.created_at,
+      });
+
+      if (error) {
         try {
-          await bucket.delete(fileId);
+          await removeStorageObject(STORAGE_BUCKETS.videos, filePath);
         } catch {
-          // ignore
+          // ignore cleanup failure
         }
-        throw e;
+        throw new Error(error.message);
       }
 
-      created.push(toItem(doc));
+      created.push(toVideoItem(row));
     }
 
     return NextResponse.json({ items: created }, { status: 201 });
@@ -188,22 +176,28 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const collection = db.collection<VideoDoc>("videos");
-    const doc = await collection.findOne({ _id: id });
-    if (!doc) {
+    const { data, error } = await getSupabaseAdmin()
+      .from("videos")
+      .select("id, file_path")
+      .eq("id", id)
+      .limit(1);
+
+    if (error) throw new Error(error.message);
+
+    const row = data?.[0] as { id: string; file_path: string | null } | undefined;
+    if (!row) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    await collection.deleteOne({ _id: id });
+    const { error: deleteError } = await getSupabaseAdmin().from("videos").delete().eq("id", id);
+    if (deleteError) throw new Error(deleteError.message);
 
-    const bucket = new GridFSBucket(db, { bucketName: "videos" });
-    try {
-      if (doc.fileId) {
-        await bucket.delete(doc.fileId);
+    if (row.file_path) {
+      try {
+        await removeStorageObject(STORAGE_BUCKETS.videos, row.file_path);
+      } catch {
+        // ignore cleanup failure
       }
-    } catch {
-      // ignore
     }
 
     return NextResponse.json({ ok: true });
@@ -214,5 +208,3 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
-
-

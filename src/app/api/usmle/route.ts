@@ -1,58 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
-import { GridFSBucket, ObjectId } from "mongodb";
-import { Readable } from "node:stream";
-import type { UsmleItem } from "@/lib/content-types";
 import { isAdminRequest } from "@/lib/admin";
-import { getDb } from "@/lib/mongodb";
+import { buildStoragePath, normalizeUrl } from "@/lib/content-utils";
+import { type UsmleRow, toUsmleItem } from "@/lib/supabase-content";
+import {
+  getSupabaseAdmin,
+  removeStorageObject,
+  STORAGE_BUCKETS,
+  uploadStorageObject,
+} from "@/lib/supabase";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type UsmleDoc = {
-  _id: string;
-  title: string;
-  description?: string;
-  url?: string;
-  fileId?: ObjectId;
-  fileName?: string;
-  fileType?: string;
-  createdAt: Date;
-};
-
-function toItem(doc: UsmleDoc): UsmleItem {
-  return {
-    id: doc._id,
-    title: doc.title,
-    description: doc.description,
-    url: doc.url,
-    fileId: doc.fileId?.toString(),
-    fileName: doc.fileName,
-    fileType: doc.fileType,
-    createdAt: doc.createdAt.toISOString(),
-  };
-}
-
-function normalizeUrl(value: string) {
-  const v = value.trim();
-  if (!v) return "";
-  try {
-    return new URL(v).toString();
-  } catch {
-    return "";
-  }
-}
-
 export async function GET() {
   try {
-    const db = await getDb();
-    const docs = await db
-      .collection<UsmleDoc>("usmle")
-      .find({})
-      .sort({ createdAt: -1 })
-      .toArray();
+    const { data, error } = await getSupabaseAdmin()
+      .from("usmle_resources")
+      .select("id, title, description, url, file_path, file_name, file_type, mime_type, created_at")
+      .order("created_at", { ascending: false });
 
-    return NextResponse.json(docs.map(toItem), {
+    if (error) throw new Error(error.message);
+
+    return NextResponse.json(((data ?? []) as UsmleRow[]).map(toUsmleItem), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
@@ -69,9 +39,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const bucket = new GridFSBucket(db, { bucketName: "usmle_files" });
-
     let body: {
       title: string;
       description: string;
@@ -86,10 +53,17 @@ export async function POST(request: NextRequest) {
         title: String(formData.get("title") ?? "").trim(),
         description: String(formData.get("description") ?? "").trim(),
         url: String(formData.get("url") ?? "").trim(),
-        file: (formData.get("file") as File) || null,
+        file: (formData.get("file") as File | null) ?? null,
       };
     } else {
-      const json = (await request.json().catch(() => null)) as any;
+      const json = (await request.json().catch(() => null)) as
+        | {
+            title?: unknown;
+            description?: unknown;
+            url?: unknown;
+          }
+        | null;
+
       body = {
         title: String(json?.title ?? "").trim(),
         description: String(json?.description ?? "").trim(),
@@ -108,11 +82,13 @@ export async function POST(request: NextRequest) {
     }
 
     const id = crypto.randomUUID();
-    let fileId: ObjectId | undefined;
-    let fileType: string | undefined;
+    const createdAt = new Date().toISOString();
+    let filePath: string | null = null;
+    let fileType: string | null = null;
+    let mimeType: string | null = null;
+    let fileName: string | null = null;
 
-    if (body.file) {
-      // 100MB limit
+    if (body.file && body.file.size > 0) {
       if (body.file.size > 100 * 1024 * 1024) {
         return NextResponse.json({ error: "File too large (max 100MB)." }, { status: 413 });
       }
@@ -122,38 +98,54 @@ export async function POST(request: NextRequest) {
       } else if (body.file.type.startsWith("image/")) {
         fileType = "image";
       } else {
-        return NextResponse.json({ error: "Only PDF or Image files are allowed." }, { status: 415 });
+        return NextResponse.json(
+          { error: "Only PDF or Image files are allowed." },
+          { status: 415 },
+        );
       }
 
-      const fId = new ObjectId();
-      const upload = bucket.openUploadStreamWithId(fId, body.file.name, {
-        contentType: body.file.type,
-      });
-
-      const buffer = Buffer.from(await body.file.arrayBuffer());
-      await new Promise<void>((resolve, reject) => {
-        Readable.from(buffer)
-          .pipe(upload)
-          .on("error", reject)
-          .on("finish", () => resolve());
-      });
-
-      fileId = fId;
+      fileName = body.file.name;
+      mimeType = body.file.type || null;
+      filePath = buildStoragePath([id], body.file.name || `${id}.file`);
+      await uploadStorageObject(STORAGE_BUCKETS.usmleFiles, filePath, body.file);
     }
 
-    const doc: UsmleDoc = {
-      _id: id,
+    const row: UsmleRow = {
+      id,
       title: body.title,
-      description: body.description || undefined,
-      url: url || undefined,
-      fileId,
-      fileName: body.file?.name,
-      fileType,
-      createdAt: new Date(),
+      description: body.description || null,
+      url: url || null,
+      file_path: filePath,
+      file_name: fileName,
+      file_type: fileType,
+      mime_type: mimeType,
+      created_at: createdAt,
     };
 
-    await db.collection<UsmleDoc>("usmle").insertOne(doc);
-    return NextResponse.json({ item: toItem(doc) }, { status: 201 });
+    const { error } = await getSupabaseAdmin().from("usmle_resources").insert({
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      url: row.url,
+      file_path: row.file_path,
+      file_name: row.file_name,
+      file_type: row.file_type,
+      mime_type: row.mime_type,
+      created_at: row.created_at,
+    });
+
+    if (error) {
+      if (filePath) {
+        try {
+          await removeStorageObject(STORAGE_BUCKETS.usmleFiles, filePath);
+        } catch {
+          // ignore cleanup failure
+        }
+      }
+      throw new Error(error.message);
+    }
+
+    return NextResponse.json({ item: toUsmleItem(row) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Failed to create resource." },
@@ -173,22 +165,31 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const db = await getDb();
-    const collection = db.collection<UsmleDoc>("usmle");
-    const doc = await collection.findOne({ _id: id });
+    const { data, error } = await getSupabaseAdmin()
+      .from("usmle_resources")
+      .select("id, file_path")
+      .eq("id", id)
+      .limit(1);
 
-    if (!doc) {
+    if (error) throw new Error(error.message);
+
+    const row = data?.[0] as { id: string; file_path: string | null } | undefined;
+    if (!row) {
       return NextResponse.json({ error: "Not found." }, { status: 404 });
     }
 
-    await collection.deleteOne({ _id: id });
+    const { error: deleteError } = await getSupabaseAdmin()
+      .from("usmle_resources")
+      .delete()
+      .eq("id", id);
 
-    if (doc.fileId) {
-      const bucket = new GridFSBucket(db, { bucketName: "usmle_files" });
+    if (deleteError) throw new Error(deleteError.message);
+
+    if (row.file_path) {
       try {
-        await bucket.delete(doc.fileId);
+        await removeStorageObject(STORAGE_BUCKETS.usmleFiles, row.file_path);
       } catch {
-        // ignore
+        // ignore cleanup failure
       }
     }
 
