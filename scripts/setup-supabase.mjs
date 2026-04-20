@@ -32,6 +32,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey, {
 const buckets = [
   "books",
   "case-quiz-images",
+  "doctors-images",
   "medical-news-images",
   "usmle-files",
   "videos",

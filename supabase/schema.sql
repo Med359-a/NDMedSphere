@@ -60,6 +60,16 @@ create table if not exists public.medical_news (
 
 create index if not exists medical_news_created_at_idx on public.medical_news (created_at desc);
 
+create table if not exists public.doctors (
+  id text primary key,
+  name text not null,
+  biography text not null,
+  image_path text,
+  created_at timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists doctors_created_at_idx on public.doctors (created_at desc);
+
 create table if not exists public.usmle_resources (
   id text primary key,
   title text not null,
@@ -93,6 +103,7 @@ alter table public.books enable row level security;
 alter table public.case_topics enable row level security;
 alter table public.case_quizzes enable row level security;
 alter table public.case_quiz_answers enable row level security;
+alter table public.doctors enable row level security;
 alter table public.medical_news enable row level security;
 alter table public.usmle_resources enable row level security;
 alter table public.videos enable row level security;

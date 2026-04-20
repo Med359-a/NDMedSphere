@@ -6,6 +6,7 @@ A modern multi-page portfolio website built with **Next.js + TypeScript + Tailwi
 
 - **Home**: `/`
 - **About**: `/about`
+- **Doctors**: `/doctors`
 - **Books**: `/books`
 - **Cases**: `/cases`
 - **Medical News**: `/medical-news`
@@ -46,8 +47,8 @@ Security notes:
 
 All content is stored in **Supabase**:
 
-- Books / Cases / Medical News / USMLE are stored in Postgres tables.
-- Files and videos are stored in Supabase Storage buckets.
+- Doctors / Books / Cases / Medical News / USMLE are stored in Postgres tables.
+- Photos, files, and videos are stored in Supabase Storage buckets.
 
 Environment variables (copy `env.example` to `.env.local` and fill in real values):
 

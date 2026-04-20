@@ -41,6 +41,14 @@ export type StudyItem = {
   createdAt: string;
 };
 
+export type DoctorItem = {
+  id: string;
+  name: string;
+  biography: string;
+  imageFileId?: string;
+  createdAt: string;
+};
+
 export type UsmleItem = {
   id: string;
   title: string;
@@ -51,4 +59,3 @@ export type UsmleItem = {
   fileType?: string; // 'pdf' | 'image'
   createdAt: string;
 };
-

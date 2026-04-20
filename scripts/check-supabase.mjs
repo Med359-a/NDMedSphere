@@ -42,6 +42,7 @@ try {
           'case_topics',
           'case_quizzes',
           'case_quiz_answers',
+          'doctors',
           'medical_news',
           'usmle_resources',
           'videos'

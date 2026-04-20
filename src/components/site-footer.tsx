@@ -13,6 +13,7 @@ export function SiteFooter() {
 
   const links = [
     { href: "/about", label: t.nav.about },
+    { href: "/doctors", label: t.nav.doctors },
     { href: "/books", label: t.nav.books },
     { href: "/usmle", label: t.nav.usmle },
     { href: "/cases", label: t.nav.cases },
@@ -113,5 +114,4 @@ export function SiteFooter() {
     </footer>
   );
 }
-
 

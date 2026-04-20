@@ -5,6 +5,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 export const STORAGE_BUCKETS = {
   books: "books",
   caseQuizImages: "case-quiz-images",
+  doctorsImages: "doctors-images",
   medicalNewsImages: "medical-news-images",
   usmleFiles: "usmle-files",
   videos: "videos",

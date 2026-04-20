@@ -2,6 +2,7 @@ import "server-only";
 
 import type {
   BookItem,
+  DoctorItem,
   QuizAnswer,
   QuizItem,
   StudyItem,
@@ -60,6 +61,14 @@ export type MedicalNewsRow = {
   created_at: string;
 };
 
+export type DoctorRow = {
+  id: string;
+  name: string;
+  biography: string;
+  image_path: string | null;
+  created_at: string;
+};
+
 export type UsmleRow = {
   id: string;
   title: string;
@@ -103,6 +112,16 @@ export function toStudyItem(row: MedicalNewsRow): StudyItem {
     notes: row.notes,
     tags: Array.isArray(row.tags) ? row.tags : [],
     url: row.url ?? undefined,
+    imageFileId: row.image_path ?? undefined,
+    createdAt: toIsoDateString(row.created_at),
+  };
+}
+
+export function toDoctorItem(row: DoctorRow): DoctorItem {
+  return {
+    id: row.id,
+    name: row.name,
+    biography: row.biography,
     imageFileId: row.image_path ?? undefined,
     createdAt: toIsoDateString(row.created_at),
   };
