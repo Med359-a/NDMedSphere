@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 import { Container } from "@/components/container";
@@ -11,12 +12,6 @@ type LoadState =
   | { status: "loading" }
   | { status: "ready" }
   | { status: "error"; message: string };
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
-}
 
 function initialsFromName(name: string) {
   const initials = name
@@ -292,10 +287,13 @@ export function DoctorsClient() {
                   <div className="grid md:grid-cols-[16rem_minmax(0,1fr)]">
                     <div className="relative min-h-72 overflow-hidden border-b border-black/10 bg-gradient-to-br from-emerald-500/15 via-sky-500/10 to-zinc-900/5 dark:border-white/10 md:border-b-0 md:border-r">
                       {doctor.imageFileId ? (
-                        <img
+                        <Image
                           src={`/api/doctors/image?id=${doctor.imageFileId}`}
                           alt={doctor.name}
-                          className="absolute inset-0 h-full w-full object-cover"
+                          fill
+                          unoptimized
+                          sizes="(min-width: 1024px) 16rem, 100vw"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-gradient-to-br from-emerald-500/20 via-sky-500/15 to-zinc-900/10">
@@ -310,9 +308,6 @@ export function DoctorsClient() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
                           <h3 className="text-2xl font-semibold tracking-tight">{doctor.name}</h3>
-                          <div className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                            {formatDate(doctor.createdAt)}
-                          </div>
                         </div>
                         {isAdmin ? (
                           <button

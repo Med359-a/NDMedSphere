@@ -11,12 +11,6 @@ type LoadState =
   | { status: "ready" }
   | { status: "error"; message: string };
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
-}
-
 export function UsmleClient() {
   const admin = useAdmin();
   const isAdmin = admin.isAdmin;
@@ -269,9 +263,6 @@ export function UsmleClient() {
                     <div className="min-w-0">
                       <div className="truncate text-lg font-semibold group-hover:text-emerald-700 dark:group-hover:text-emerald-400 text-zinc-900 dark:text-zinc-50 transition-colors">
                         {item.title}
-                      </div>
-                      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {formatDate(item.createdAt)}
                       </div>
                     </div>
                     {isAdmin ? (

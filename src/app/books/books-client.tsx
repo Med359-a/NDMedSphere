@@ -10,12 +10,6 @@ type LoadState =
   | { status: "ready" }
   | { status: "error"; message: string };
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "2-digit" });
-}
-
 export function BooksClient() {
   const admin = useAdmin();
   const isAdmin = admin.isAdmin;
@@ -297,10 +291,11 @@ export function BooksClient() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="truncate text-lg font-semibold">{b.title}</div>
-                      <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {b.author ? `${b.author} • ` : ""}
-                        {formatDate(b.createdAt)}
-                      </div>
+                      {b.author ? (
+                        <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                          {b.author}
+                        </div>
+                      ) : null}
                     </div>
                     {isAdmin ? (
                       <button
@@ -350,4 +345,3 @@ export function BooksClient() {
     </div>
   );
 }
-

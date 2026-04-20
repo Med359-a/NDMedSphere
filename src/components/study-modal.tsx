@@ -3,12 +3,6 @@
 import * as React from "react";
 import type { StudyItem } from "@/lib/content-types";
 
-function formatDate(iso: string) {
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return iso;
-    return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
-}
-
 export function StudyModal({ item, onClose }: { item: StudyItem; onClose: () => void }) {
     // Lock body scroll
     React.useEffect(() => {
@@ -37,7 +31,6 @@ export function StudyModal({ item, onClose }: { item: StudyItem; onClose: () => 
                     <div className="space-y-8">
                         <div className="space-y-2">
                             <h2 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50 leading-tight break-words">{item.title}</h2>
-                            <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">{formatDate(item.createdAt)}</p>
                         </div>
 
                         {item.imageFileId && (

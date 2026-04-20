@@ -13,18 +13,6 @@ function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 || i === 0 ? 0 : 1)} ${units[i]}`;
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 type LoadState =
   | { status: "loading" }
   | { status: "ready" }
@@ -345,10 +333,11 @@ export function VideosClient() {
                           <div className="truncate text-sm font-semibold">
                             {v.title || v.originalName}
                           </div>
-                          <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                            {formatDate(v.createdAt)}
-                            {v.size ? ` • ${formatBytes(v.size)}` : null}
-                          </div>
+                          {v.size ? (
+                            <div className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                              {formatBytes(v.size)}
+                            </div>
+                          ) : null}
                         </div>
                         {isAdmin ? (
                           <button
@@ -377,5 +366,4 @@ export function VideosClient() {
     </div>
   );
 }
-
 
