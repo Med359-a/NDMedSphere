@@ -99,8 +99,8 @@ export function VideosClient() {
     }
   }
 
-  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60 dark:focus:border-emerald-400";
-  const textareaClass = "w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60 dark:focus:border-emerald-400";
+  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60 dark:focus:border-blue-400";
+  const textareaClass = "w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60 dark:focus:border-blue-400";
 
   return (
     <div>
@@ -127,7 +127,7 @@ export function VideosClient() {
                   placeholder="Search videos…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-10 w-full rounded-xl border border-black/10 bg-white/80 pl-9 pr-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                  className="h-10 w-full rounded-xl border border-black/10 bg-white/80 pl-9 pr-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60"
                 />
               </div>
             </div>
@@ -172,7 +172,7 @@ export function VideosClient() {
                   <button
                     type="submit"
                     disabled={uploading || (files.length === 0 && !youtubeUrl)}
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:from-sky-500 hover:to-emerald-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:from-sky-500 hover:to-blue-500 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {uploading ? "Uploading…" : "Upload video(s)"}
                   </button>

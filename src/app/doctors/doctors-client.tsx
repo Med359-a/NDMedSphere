@@ -97,7 +97,7 @@ export function DoctorsClient() {
     }
   }
 
-  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60";
+  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60";
 
   return (
     <div>
@@ -106,7 +106,7 @@ export function DoctorsClient() {
         <Container className="py-16 sm:py-20">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
             <div className="space-y-5 animate-fade-up">
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/8 dark:text-emerald-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/8 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:border-blue-400/20 dark:bg-blue-400/8 dark:text-blue-300">
                 {t.doctors.eyebrow}
               </div>
               <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
@@ -130,7 +130,7 @@ export function DoctorsClient() {
                     <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400" htmlFor="doctor-biography">{t.doctors.biography_label}</label>
                     <textarea
                       id="doctor-biography" value={biography} onChange={(e) => setBiography(e.target.value)}
-                      className="min-h-32 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                      className="min-h-32 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60"
                       placeholder={t.doctors.biography_placeholder} required
                     />
                   </div>
@@ -240,7 +240,7 @@ export function DoctorsClient() {
                           className="object-cover"
                         />
                       ) : (
-                        <div className="flex h-full min-h-64 items-center justify-center bg-gradient-to-br from-emerald-500/15 via-sky-500/10 to-zinc-100 dark:from-emerald-500/10 dark:via-sky-500/8 dark:to-zinc-900">
+                        <div className="flex h-full min-h-64 items-center justify-center bg-gradient-to-br from-blue-500/15 via-sky-500/10 to-zinc-100 dark:from-blue-500/10 dark:via-sky-500/8 dark:to-zinc-900">
                           <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/60 bg-white/70 text-2xl font-bold text-zinc-700 shadow-sm backdrop-blur dark:border-white/20 dark:bg-zinc-900/70 dark:text-zinc-200">
                             {initialsFromName(doctor.name)}
                           </div>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f8f6;
-  --foreground: #18181b;
+  --background: #f2f7fc;
+  --foreground: #0f2340;
 }
 
 @theme inline {
@@ -15,8 +15,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d0f14;
-    --foreground: #f4f3f0;
+    --background: #071120;
+    --foreground: #e8f1fb;
   }
 }
 
@@ -34,8 +34,8 @@ body {
 }
 
 ::selection {
-  background: color-mix(in srgb, #059669 20%, transparent);
-  color: #18181b;
+  background: color-mix(in srgb, #0d5db8 22%, transparent);
+  color: #081221;
 }
 
 /* ─── Scrollbar ──────────────────────────────── */

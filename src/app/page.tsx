@@ -8,57 +8,83 @@ import heroImage from "@/image_50348545.jpg";
 import logo from "../logo.png";
 import { useLanguage } from "@/lib/i18n";
 
+const pillarCards = [
+  {
+    eyebrow: "Clarity",
+    titleKey: "grid_1" as const,
+    icon: "M8 10h8M8 14h5m-7 7h12a2 2 0 002-2V7.828a2 2 0 00-.586-1.414l-3.828-3.828A2 2 0 0014.172 2H6a2 2 0 00-2 2v15a2 2 0 002 2z",
+  },
+  {
+    eyebrow: "Standards",
+    titleKey: "grid_2" as const,
+    icon: "M12 3l7 4v5c0 4.387-2.88 8.194-7 9-4.12-.806-7-4.613-7-9V7l7-4zm-1 10l2 2 4-4",
+  },
+  {
+    eyebrow: "Access",
+    titleKey: "grid_3" as const,
+    icon: "M5 7h14M5 12h14M5 17h8",
+  },
+];
+
 export default function Home() {
   const { t } = useLanguage();
+
   return (
     <div>
-      {/* ── Hero ───────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <Container className="py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+      <section className="relative overflow-hidden pt-6">
+        <Container className="py-10 sm:py-16">
+          <div className="relative overflow-hidden rounded-[2.75rem] border border-[#0b5aad]/12 bg-gradient-to-br from-[#08356f] via-[#0d5db8] to-[#8bb7f0] px-6 py-8 text-white shadow-[0_30px_80px_-36px_rgba(8,53,111,0.56)] sm:px-10 sm:py-10">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(4,24,52,0.24),transparent_38%)]" />
+            <div className="absolute left-0 top-0 h-44 w-44 -translate-x-1/3 -translate-y-1/3 rounded-full bg-white/16 blur-3xl" />
+            <div className="absolute bottom-0 right-0 h-64 w-64 translate-x-1/4 translate-y-1/4 rounded-full bg-[#041a37]/22 blur-3xl" />
 
-            {/* Left: Logo + Text */}
-            <div className="space-y-8 animate-fade-up">
-              {/* Logo badge */}
-              <div className="inline-flex items-center gap-3">
-                <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-md ring-1 ring-black/[0.06] dark:border-white/15 dark:bg-zinc-900 dark:ring-white/10">
-                  <Image
-                    src={logo}
-                    alt="NdMedSphere"
-                    className="h-full w-full object-cover"
-                    priority
-                  />
-                </div>
-                <div>
-                  <div className="text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-50">NdMedSphere</div>
-                  <div className="text-xs text-zinc-500 dark:text-zinc-400">Dr. David Rekhviashvili</div>
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/8 dark:text-emerald-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {t.home.tagline_badge}
+            <div className="relative grid gap-10 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+              <div className="space-y-8">
+                <div className="inline-flex items-center gap-3">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-white/16 bg-white/10 shadow-lg shadow-[#041a37]/20 backdrop-blur">
+                    <Image
+                      src={logo}
+                      alt="NdMedSphere"
+                      className="h-full w-full object-cover"
+                      priority
+                    />
+                  </div>
+                  <div>
+                    <div className="text-base font-bold tracking-tight text-white">NdMedSphere</div>
+                    <div className="text-xs text-sky-100/75">Dr. David Rekhviashvili</div>
+                  </div>
                 </div>
 
-                <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl lg:text-5xl">
-                  DR.{" "}
-                  <span className="text-zinc-900 dark:text-zinc-50">{siteConfig.name}</span>
-                  <span className="block mt-1 text-3xl font-normal text-zinc-500 dark:text-zinc-400 sm:text-4xl">
-                    — {siteConfig.title}
-                  </span>
-                </h1>
+                <div className="space-y-5">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/14 bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-sky-50">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sky-200 animate-pulse" />
+                    {t.home.tagline_badge}
+                  </div>
 
-                <p className="max-w-xl text-pretty text-lg leading-8 text-zinc-600 dark:text-zinc-300">
-                  {t.home.tagline_main}
-                </p>
+                  <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-5xl">
+                    DR. {siteConfig.name}
+                    <span className="mt-2 block text-3xl font-normal text-sky-100/78 sm:text-4xl">
+                      {siteConfig.title}
+                    </span>
+                  </h1>
+
+                  <p className="max-w-2xl text-pretty text-lg leading-8 text-sky-50/78">
+                    {t.home.tagline_main}
+                  </p>
+                </div>
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row">
                   <Link
                     href="/videos"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-zinc-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 hover:shadow-md active:translate-y-px dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                    className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#08356f] shadow-sm transition-all hover:bg-sky-50 hover:shadow-md active:translate-y-px"
                   >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
                       <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -66,88 +92,98 @@ export default function Home() {
                   </Link>
                   <Link
                     href="/contact"
-                    className="inline-flex items-center justify-center rounded-xl border border-black/10 bg-white/80 px-6 py-3 text-sm font-semibold text-zinc-800 shadow-sm backdrop-blur transition-all hover:bg-white hover:shadow-md active:translate-y-px dark:border-white/15 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10"
+                    className="inline-flex items-center justify-center rounded-full border border-white/18 bg-white/8 px-6 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition-all hover:bg-white/14 active:translate-y-px"
                   >
                     {t.home.cta_contact}
                   </Link>
                 </div>
 
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {t.home.focus_areas.map((s) => (
-                    <span
-                      key={s}
-                      className="rounded-full border border-black/8 bg-white/70 px-3 py-1 text-xs font-medium text-zinc-600 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-zinc-300"
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {t.home.focus_areas.map((label, index) => (
+                    <div
+                      key={label}
+                      className="rounded-2xl border border-white/14 bg-white/10 px-4 py-3 shadow-sm backdrop-blur"
                     >
-                      {s}
-                    </span>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-100/70">
+                        0{index + 1}
+                      </div>
+                      <div className="mt-2 text-sm font-semibold text-white">{label}</div>
+                    </div>
                   ))}
                 </div>
               </div>
-            </div>
 
-            {/* Right: Portrait */}
-            <div className="relative animate-fade-up stagger-2 lg:pt-4">
-              <div className="absolute -inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-br from-sky-500/15 via-emerald-500/10 to-transparent blur-3xl" />
-              <div className="overflow-hidden rounded-[2rem] border border-black/8 bg-white/60 shadow-xl shadow-black/5 backdrop-blur dark:border-white/10 dark:bg-zinc-950/50 dark:shadow-black/30">
-                <Image
-                  src={heroImage}
-                  alt={`${siteConfig.name} portrait`}
-                  priority
-                  className="h-[420px] w-full object-cover object-top sm:h-[520px]"
-                  sizes="(min-width: 1024px) 520px, 100vw"
-                />
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                {[t.home.feature_1, t.home.feature_2, t.home.feature_3].map((item, i) => (
-                  <div
-                    key={item.k}
-                    className="animate-fade-up rounded-2xl border border-black/8 bg-white/80 p-4 text-sm shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-950/60"
-                    style={{ animationDelay: `${200 + i * 60}ms` }}
-                  >
-                    <div className="text-xs font-medium text-zinc-400 dark:text-zinc-500">{item.k}</div>
-                    <div className="mt-1 font-semibold text-zinc-900 dark:text-zinc-50">{item.v}</div>
+              <div className="relative lg:pl-6">
+                <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.24),transparent_28%),radial-gradient(circle_at_30%_80%,rgba(2,17,39,0.22),transparent_36%)] blur-2xl" />
+                <div className="relative overflow-hidden rounded-[2.2rem] border border-white/14 bg-white/8 shadow-[0_32px_80px_-40px_rgba(4,20,44,0.9)]">
+                  <div className="absolute inset-0 bg-gradient-to-l from-[#8bb7f0]/20 via-[#0d5db8]/34 to-[#08356f]/88 mix-blend-multiply" />
+                  <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#08356f] via-[#08356f]/35 to-transparent" />
+                  <div className="absolute right-5 top-5 rounded-full border border-white/14 bg-white/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-100/78 backdrop-blur">
+                    Clinical Portfolio
                   </div>
-                ))}
+                  <div className="relative h-[420px] w-full sm:h-[540px]">
+                    <Image
+                      src={heroImage}
+                      alt={`${siteConfig.name} portrait`}
+                      priority
+                      className="h-full w-full object-cover object-top"
+                      sizes="(min-width: 1024px) 520px, 100vw"
+                      style={{
+                        maskImage:
+                          "linear-gradient(to left, rgba(0,0,0,1) 46%, rgba(0,0,0,0.9) 68%, rgba(0,0,0,0.18) 100%)",
+                      }}
+                    />
+                  </div>
+                  <div className="pointer-events-none absolute inset-y-0 left-0 w-2/3 bg-gradient-to-r from-[#08356f]/78 via-[#08356f]/28 to-transparent" />
+                </div>
               </div>
             </div>
           </div>
         </Container>
       </section>
 
-      {/* ── Pillars ─────────────────────────────────── */}
-      <section className="border-y border-black/[0.05] bg-white/60 backdrop-blur-sm dark:border-white/[0.06] dark:bg-zinc-950/40">
+      <section className="border-y border-[#0b5aad]/8 bg-white/62 backdrop-blur-sm dark:border-white/[0.06] dark:bg-white/[0.02]">
         <Container className="py-14">
           <div className="grid gap-5 md:grid-cols-3">
-            {[
-              { eyebrow: "Clarity", item: t.home.grid_1, icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
-              { eyebrow: "Precision", item: t.home.grid_2, icon: "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" },
-              { eyebrow: "Portfolio", item: t.home.grid_3, icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" },
-            ].map(({ eyebrow, item, icon }) => (
-              <div
-                key={eyebrow}
-                className="group rounded-2xl border border-black/8 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-zinc-950"
-              >
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10">
-                  <svg className="h-5 w-5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
-                  </svg>
+            {pillarCards.map(({ eyebrow, titleKey, icon }) => {
+              const item = t.home[titleKey];
+              return (
+                <div
+                  key={eyebrow}
+                  className="group rounded-[1.75rem] border border-[#0b5aad]/10 bg-white/88 p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-[#09172b]/82"
+                >
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-[#0d5db8]/10 dark:bg-sky-400/10">
+                    <svg
+                      className="h-5 w-5 text-[#0d5db8] dark:text-sky-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={1.75}
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+                    </svg>
+                  </div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#0d5db8] dark:text-sky-300">
+                    {eyebrow}
+                  </div>
+                  <div className="mt-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                    {item.title}
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+                    {item.body}
+                  </p>
                 </div>
-                <div className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{eyebrow}</div>
-                <div className="mt-1.5 text-base font-semibold text-zinc-900 dark:text-zinc-50">{item.title}</div>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{item.body}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Container>
       </section>
 
-      {/* ── Portfolio Preview ────────────────────────── */}
       <section>
         <Container className="py-16">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl space-y-2">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+              <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#0d5db8] dark:text-sky-300">
                 Portfolio
               </div>
               <h2 className="font-display text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
@@ -157,59 +193,69 @@ export default function Home() {
             </div>
             <Link
               href="/videos"
-              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-black/10 bg-white/80 px-5 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm backdrop-blur transition-all hover:bg-white hover:shadow-md dark:border-white/15 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10"
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-[#0b5aad]/12 bg-white/88 px-5 py-2.5 text-sm font-semibold text-[#08356f] shadow-sm backdrop-blur transition-all hover:bg-white hover:shadow-md dark:border-white/12 dark:bg-white/5 dark:text-zinc-100 dark:hover:bg-white/10"
             >
               {t.home.portfolio_link}
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
               </svg>
             </Link>
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[t.home.card_1, t.home.card_2, t.home.card_3].map((s, i) => (
+            {[t.home.card_1, t.home.card_2, t.home.card_3].map((item, index) => (
               <div
-                key={s.title}
-                className="animate-fade-up group rounded-2xl border border-black/8 bg-white/80 p-6 shadow-sm backdrop-blur transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg dark:border-white/10 dark:bg-zinc-950/60 dark:hover:bg-zinc-950"
-                style={{ animationDelay: `${i * 80}ms` }}
+                key={item.title}
+                className="group rounded-[1.75rem] border border-[#0b5aad]/10 bg-white/88 p-6 shadow-sm transition-all hover:-translate-y-1 hover:bg-white hover:shadow-lg dark:border-white/10 dark:bg-[#09172b]/82 dark:hover:bg-[#0a1a31]"
               >
-                <div className="mb-3 text-2xl">{["🔬", "📚", "🤝"][i]}</div>
-                <div className="text-base font-semibold text-zinc-900 dark:text-zinc-50">{s.title}</div>
-                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{s.body}</p>
+                <div className="mb-5 h-1 w-16 rounded-full bg-gradient-to-r from-[#0d5db8] to-sky-300" />
+                <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#0d5db8] dark:text-sky-300">
+                  0{index + 1}
+                </div>
+                <div className="mt-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                  {item.title}
+                </div>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+                  {item.body}
+                </p>
               </div>
             ))}
           </div>
         </Container>
       </section>
 
-      {/* ── CTA Banner ──────────────────────────────── */}
       <section className="pb-20">
         <Container>
-          <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-800 p-10 shadow-2xl dark:from-zinc-900 dark:via-zinc-800 dark:to-zinc-900">
-            {/* Decorative glow */}
-            <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 -translate-y-1/4 translate-x-1/4 rounded-full bg-emerald-500/10 blur-3xl" />
-            <div className="pointer-events-none absolute bottom-0 left-0 h-48 w-48 translate-y-1/4 -translate-x-1/4 rounded-full bg-sky-500/8 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#082e60] via-[#0b4f9d] to-[#0d69d3] p-10 shadow-[0_36px_90px_-44px_rgba(8,46,96,0.72)]">
+            <div className="pointer-events-none absolute right-0 top-0 h-64 w-64 -translate-y-1/4 translate-x-1/4 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-48 w-48 translate-y-1/4 -translate-x-1/4 rounded-full bg-[#021327]/30 blur-3xl" />
 
             <div className="relative grid gap-8 lg:grid-cols-2 lg:items-center">
               <div className="space-y-3">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-100/78">
                   Ready to get started?
                 </div>
                 <h2 className="font-display text-3xl font-bold tracking-tight text-white">
                   {t.home.bottom_title}
                 </h2>
-                <p className="text-white/70">{t.home.bottom_body}</p>
+                <p className="text-sky-50/76">{t.home.bottom_body}</p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                 <Link
                   href="/videos"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-zinc-900 shadow-sm transition-all hover:bg-zinc-50 hover:shadow-md"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#08356f] shadow-sm transition-all hover:bg-sky-50 hover:shadow-md"
                 >
                   {t.home.bottom_cta}
                 </Link>
                 <Link
                   href="/contact"
-                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/8 px-6 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition-all hover:bg-white/15"
+                  className="inline-flex items-center justify-center rounded-full border border-white/18 bg-white/8 px-6 py-3 text-sm font-semibold text-white shadow-sm backdrop-blur transition-all hover:bg-white/14"
                 >
                   {t.home.cta_contact}
                 </Link>

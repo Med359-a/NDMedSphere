@@ -61,7 +61,7 @@ export function ContactForm({
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
+          className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-white/15 dark:bg-zinc-950/40"
           placeholder="Your name"
           autoComplete="name"
         />
@@ -76,7 +76,7 @@ export function ContactForm({
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
+          className="h-11 rounded-xl border border-black/10 bg-white/70 px-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-white/15 dark:bg-zinc-950/40"
           placeholder="you@example.com"
           autoComplete="email"
         />
@@ -90,7 +90,7 @@ export function ContactForm({
           id="message"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="min-h-32 rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 dark:border-white/15 dark:bg-zinc-950/40"
+          className="min-h-32 rounded-xl border border-black/10 bg-white/70 px-3 py-2 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 dark:border-white/15 dark:bg-zinc-950/40"
           placeholder="Tell us what you need help with…"
         />
       </div>
@@ -102,7 +102,7 @@ export function ContactForm({
       ) : null}
 
       {state.status === "sent" ? (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800 dark:text-emerald-200">
+        <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-800 dark:text-blue-200">
           Your email client should open now. If it didn’t, you can email me
           directly.
         </div>

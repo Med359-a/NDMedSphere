@@ -12,7 +12,7 @@ export function ContactClient() {
       <section className="border-b border-black/[0.05] bg-white/50 backdrop-blur-sm dark:border-white/[0.06] dark:bg-zinc-950/40">
         <Container className="py-16 sm:py-20">
           <div className="max-w-2xl space-y-4 animate-fade-up">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-700 dark:border-emerald-400/20 dark:bg-emerald-400/8 dark:text-emerald-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/20 bg-blue-500/8 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-blue-700 dark:border-blue-400/20 dark:bg-blue-400/8 dark:text-blue-300">
               {t.contact.title}
             </div>
             <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
@@ -33,8 +33,8 @@ export function ContactClient() {
               {/* Contact Details */}
               <div className="animate-fade-up rounded-[2rem] border border-black/8 bg-white/80 p-8 shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-950/60">
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 dark:bg-emerald-400/10">
-                    <svg className="h-4.5 w-4.5 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 dark:bg-blue-400/10">
+                    <svg className="h-4.5 w-4.5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                   </div>
@@ -45,7 +45,7 @@ export function ContactClient() {
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Email</div>
                     <a
                       href={`mailto:${siteConfig.contact.email}`}
-                      className="mt-1.5 block font-semibold text-zinc-800 transition-colors hover:text-emerald-600 dark:text-zinc-100 dark:hover:text-emerald-400"
+                      className="mt-1.5 block font-semibold text-zinc-800 transition-colors hover:text-blue-600 dark:text-zinc-100 dark:hover:text-blue-400"
                     >
                       {siteConfig.contact.email}
                     </a>
@@ -133,7 +133,7 @@ export function ContactClient() {
                   <ul className="mt-3 space-y-2">
                     {["Personalized guidance", "Clinical reasoning coaching", "USMLE & exam prep", "Case-based mentorship"].map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
                         {item}
                       </li>
                     ))}

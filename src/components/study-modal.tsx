@@ -54,7 +54,7 @@ export function StudyModal({ item, onClose }: { item: StudyItem; onClose: () => 
                                         href={item.url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400"
+                                        className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400"
                                     >
                                         <span>Read source</span>
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

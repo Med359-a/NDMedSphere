@@ -94,7 +94,7 @@ export function BooksClient() {
     }
   }
 
-  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60";
+  const inputClass = "h-11 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60";
 
   return (
     <div>
@@ -134,7 +134,7 @@ export function BooksClient() {
                     <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400" htmlFor="notes">Notes (optional)</label>
                     <textarea
                       id="notes" value={notes} onChange={(e) => setNotes(e.target.value)}
-                      className="min-h-24 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                      className="min-h-24 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/15 dark:border-white/15 dark:bg-zinc-950/60"
                       placeholder="Key takeaways, review notes…"
                     />
                   </div>
@@ -258,7 +258,7 @@ export function BooksClient() {
                           href={b.url}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+                          className="inline-flex items-center gap-1.5 text-sm font-semibold text-blue-600 transition hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                         >
                           Open link
                           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
