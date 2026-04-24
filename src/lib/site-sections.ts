@@ -21,7 +21,7 @@ export const PRODUCT_PAGES: BlogPageConfig[] = [
     slug: "communications-skills",
     title: "Communications Skills",
     eyebrow: "Products",
-    intro: "Share blog posts, educational notes, and image-supported guidance about communication in medicine.",
+    intro: "Educational notes and guidance on communication in medicine.",
     href: "/products/communications-skills",
   },
   {
@@ -29,7 +29,7 @@ export const PRODUCT_PAGES: BlogPageConfig[] = [
     slug: "preventive-care-management",
     title: "Preventive Care Management",
     eyebrow: "Products",
-    intro: "Publish structured posts around preventive care planning, follow-up, and patient-centered management.",
+    intro: "Resources on preventive care planning and patient-centered management.",
     href: "/products/preventive-care-management",
   },
   {
@@ -37,7 +37,7 @@ export const PRODUCT_PAGES: BlogPageConfig[] = [
     slug: "medical-news",
     title: "Medical News",
     eyebrow: "Products",
-    intro: "Publish medical-news posts and image-supported updates in one dedicated page.",
+    intro: "Current medical updates and clinical news.",
     href: "/medical-news",
   },
   {
@@ -45,7 +45,7 @@ export const PRODUCT_PAGES: BlogPageConfig[] = [
     slug: "lifestyle",
     title: "Lifestyle",
     eyebrow: "Products",
-    intro: "Write blog-style posts on healthy living, routines, wellness, and practical patient education.",
+    intro: "Healthy living, wellness, and practical patient education.",
     href: "/products/lifestyle",
   },
 ] as const;

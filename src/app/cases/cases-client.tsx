@@ -70,24 +70,24 @@ function QuizView({
 
   return (
     <div>
-      <section className="border-b border-black/[0.05] bg-white/50 backdrop-blur-sm dark:border-white/[0.06] dark:bg-zinc-950/40">
+      <section className="border-b border-[#dbe8f5] bg-white dark:border-white/[0.06] dark:bg-[#070f1f]">
         <Container className="py-12">
           <button
             onClick={onBack}
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-[#7a90ab] transition-colors hover:text-[#0c2d6b] dark:text-slate-400 dark:hover:text-zinc-50"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
             Back to Topics
           </button>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="text-2xl font-bold tracking-tight text-[#0c2d6b] dark:text-white">
             {topic.title}
           </h1>
           {topic.description && (
-            <p className="mt-2 text-zinc-600 dark:text-zinc-300">{topic.description}</p>
+            <p className="mt-2 text-[#4a6180] dark:text-slate-300">{topic.description}</p>
           )}
-          <div className="mt-3 inline-flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="mt-3 inline-flex items-center gap-1.5 text-sm text-[#7a90ab] dark:text-slate-400">
             <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -96,7 +96,7 @@ function QuizView({
         </Container>
       </section>
 
-      <section className="pb-20">
+      <section className="bg-[#f4f8fd] pb-20 dark:bg-[#0d1b30]">
         <Container className="py-12">
           <div className="space-y-6">
             {topic.quizzes.map((quiz, i) => {
@@ -107,7 +107,7 @@ function QuizView({
               return (
                 <div
                   key={quiz.id}
-                  className="animate-fade-up rounded-2xl border border-black/8 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-zinc-950"
+                  className="animate-fade-up rounded-2xl border border-[#dbe8f5] bg-white p-6 shadow-sm dark:border-white/10 dark:bg-[#0f2040]"
                   style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <div className="flex justify-between gap-4">
@@ -115,7 +115,7 @@ function QuizView({
                       <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-xs font-bold text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-400">
                         {i + 1}
                       </span>
-                      <h3 className="font-semibold text-zinc-900 dark:text-zinc-50">{quiz.question}</h3>
+                      <h3 className="font-semibold text-[#0c2d6b] dark:text-white">{quiz.question}</h3>
                     </div>
                     {isAdmin && (
                       <button
@@ -139,7 +139,7 @@ function QuizView({
 
                   <div className="mt-5 grid gap-2.5">
                     {quiz.answers.map((ans) => {
-                      let cls = "border-black/8 bg-zinc-50 hover:bg-zinc-100 dark:border-white/10 dark:bg-zinc-900 dark:hover:bg-zinc-800";
+                      let cls = "border-[#dbe8f5] bg-[#f4f8fd] hover:bg-[#eff6ff] dark:border-white/10 dark:bg-[#0d1b30] dark:hover:bg-zinc-800";
                       if (isResultShown) {
                         if (ans.isCorrect) cls = "border-emerald-500 bg-emerald-50 text-emerald-900 dark:border-emerald-500/50 dark:bg-emerald-500/10 dark:text-emerald-200";
                         else if (selectedAnswerId === ans.id) cls = "border-rose-500 bg-rose-50 text-rose-900 dark:border-rose-500/50 dark:bg-rose-500/10 dark:text-rose-200";
@@ -164,7 +164,7 @@ function QuizView({
                     <div className="mt-4">
                       <button
                         onClick={() => setShowResults((prev) => ({ ...prev, [quiz.id]: true }))}
-                        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                        className="rounded-lg bg-[#1666d1] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#1255b8]"
                       >
                         Check Answer
                       </button>
@@ -172,8 +172,8 @@ function QuizView({
                   )}
 
                   {isResultShown && quiz.explanation && (
-                    <div className="mt-4 rounded-xl border border-black/[0.05] bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/[0.06] dark:bg-zinc-900 dark:text-zinc-300">
-                      <span className="font-semibold text-zinc-900 dark:text-zinc-100">Explanation: </span>
+                    <div className="mt-4 rounded-xl border border-[#dbe8f5] bg-[#f4f8fd] p-4 text-sm text-[#374c66] dark:border-white/[0.06] dark:bg-[#0d1b30] dark:text-slate-300">
+                      <span className="font-semibold text-[#0c2d6b] dark:text-white">Explanation: </span>
                       {quiz.explanation}
                     </div>
                   )}
@@ -182,30 +182,30 @@ function QuizView({
             })}
 
             {topic.quizzes.length === 0 && (
-              <div className="py-12 text-center text-zinc-500 dark:text-zinc-400">
+              <div className="py-12 text-center text-[#7a90ab] dark:text-slate-400">
                 No questions yet.
               </div>
             )}
           </div>
 
           {isAdmin && (
-            <div className="mt-12 rounded-[2rem] border border-black/8 bg-white/80 p-8 shadow-sm backdrop-blur dark:border-white/10 dark:bg-zinc-950/60">
-              <div className="text-base font-semibold text-zinc-900 dark:text-zinc-50">Add Question</div>
+            <div className="mt-12 rounded-2xl border border-[#dbe8f5] bg-[#f4f8fd] p-7 shadow-sm dark:border-white/10 dark:bg-[#0d1b30]">
+              <div className="text-base font-semibold text-[#0c2d6b] dark:text-white">Add Question</div>
               <form onSubmit={onAddQuiz} className="mt-5 grid gap-5">
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Question *</label>
+                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Question *</label>
                   <textarea
                     value={question} onChange={(e) => setQuestion(e.target.value)}
-                    className="min-h-24 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                    className="min-h-24 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
                     placeholder="Enter question text…" required
                   />
                 </div>
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Image (optional)</label>
+                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Image (optional)</label>
                   <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-sm" />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Answers (select correct with radio)</label>
+                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Answers (select correct with radio)</label>
                   {answers.map((ans, i) => (
                     <div key={i} className="flex gap-3">
                       <input
@@ -216,14 +216,14 @@ function QuizView({
                       <input
                         value={ans.text}
                         onChange={(e) => { const next = [...answers]; next[i].text = e.target.value; setAnswers(next); }}
-                        className="h-10 flex-1 rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                        className="h-10 flex-1 rounded-xl border border-[#dbe8f5] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
                         placeholder={`Option ${i + 1}`}
                       />
                       <button
                         type="button"
                         onClick={() => { if (answers.length > 2) setAnswers(answers.filter((_, idx) => idx !== i)); }}
                         disabled={answers.length <= 2}
-                        className="px-2 text-zinc-400 hover:text-rose-500 disabled:opacity-30"
+                        className="px-2 text-[#7a90ab] hover:text-rose-500 disabled:opacity-30"
                       >
                         ✕
                       </button>
@@ -238,16 +238,16 @@ function QuizView({
                   </button>
                 </div>
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Explanation (optional)</label>
+                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Explanation (optional)</label>
                   <textarea
                     value={explanation} onChange={(e) => setExplanation(e.target.value)}
-                    className="min-h-20 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                    className="min-h-20 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
                     placeholder="Why is the correct answer correct?"
                   />
                 </div>
                 <button
                   type="submit" disabled={saving}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-zinc-900 px-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1666d1] px-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1255b8] disabled:opacity-60"
                 >
                   {saving ? "Adding…" : "Add Question"}
                 </button>
@@ -331,42 +331,42 @@ export function CasesClient() {
   return (
     <div>
       {/* ── Hero ─────────────────────────────────────── */}
-      <section className="border-b border-black/[0.05] bg-white/50 backdrop-blur-sm dark:border-white/[0.06] dark:bg-zinc-950/40">
+      <section className="border-b border-[#dbe8f5] bg-white dark:border-white/[0.06] dark:bg-[#070f1f]">
         <Container className="py-16 sm:py-20">
           <div className="max-w-2xl space-y-5 animate-fade-up">
             <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/8 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-violet-700 dark:border-violet-400/20 dark:bg-violet-400/8 dark:text-violet-300">
               Cases
             </div>
-            <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
+            <h1 className="font-display text-balance text-4xl font-bold tracking-tight text-[#0c2d6b] dark:text-white sm:text-5xl">
               Clinical Cases
             </h1>
-            <p className="text-pretty text-lg leading-8 text-zinc-600 dark:text-zinc-300">
-              Select a topic to explore test cases and interactive quizzes. Sharpen your clinical reasoning.
+            <p className="text-pretty text-lg leading-8 text-[#4a6180] dark:text-slate-300">
+              Clinical case walkthroughs and interactive quizzes for sharpening diagnostic reasoning.
             </p>
           </div>
         </Container>
       </section>
 
       {/* ── Topics ───────────────────────────────────── */}
-      <section className="pb-20">
+      <section className="bg-[#f4f8fd] pb-20 dark:bg-[#0d1b30]">
         <Container className="py-16">
           {load.status === "loading" && topics.length === 0 && (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-48 animate-pulse rounded-2xl border border-black/8 bg-white/60 dark:border-white/10 dark:bg-zinc-950/50" />
+                <div key={i} className="h-48 animate-pulse rounded-2xl border border-[#dbe8f5] bg-white dark:border-white/10 dark:bg-[#0f2040]" />
               ))}
             </div>
           )}
 
           {load.status !== "loading" && topics.length === 0 && !isAdmin && (
-            <div className="rounded-[2rem] border border-black/8 bg-white/60 p-16 text-center shadow-sm dark:border-white/10 dark:bg-zinc-950/50">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-white/5">
-                <svg className="h-7 w-7 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <div className="rounded-2xl border border-[#dbe8f5] bg-white p-16 text-center shadow-sm dark:border-white/10 dark:bg-[#0f2040]">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eff6ff] dark:bg-sky-400/10">
+                <svg className="h-7 w-7 text-[#7a90ab]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <div className="text-base font-semibold text-zinc-900 dark:text-zinc-50">No topics yet</div>
-              <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">Check back soon.</p>
+              <div className="text-base font-semibold text-[#0c2d6b] dark:text-white">No topics yet</div>
+              <p className="mt-1.5 text-sm text-[#7a90ab] dark:text-slate-400">Check back soon.</p>
             </div>
           )}
 
@@ -374,7 +374,7 @@ export function CasesClient() {
             {topics.map((t, i) => (
               <div
                 key={t.id}
-                className="animate-fade-up group flex flex-col justify-between rounded-[2rem] border border-black/8 bg-white p-7 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-white/10 dark:bg-zinc-950"
+                className="animate-fade-up group flex flex-col justify-between rounded-2xl border border-[#dbe8f5] bg-white p-7 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg dark:border-white/10 dark:bg-[#0f2040]"
                 style={{ animationDelay: `${i * 60}ms` }}
               >
                 <div>
@@ -383,16 +383,16 @@ export function CasesClient() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                     </svg>
                   </div>
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">{t.title}</h3>
+                  <h3 className="text-base font-semibold text-[#0c2d6b] dark:text-white">{t.title}</h3>
                   {t.description && (
-                    <p className="mt-2 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-300">{t.description}</p>
+                    <p className="mt-2 line-clamp-2 text-sm text-[#4a6180] dark:text-slate-300">{t.description}</p>
                   )}
-                  <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                  <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#eff6ff] px-2.5 py-1 text-xs font-medium text-[#1666d1] dark:bg-sky-400/10 dark:text-sky-300">
                     {t.quizzes.length} question{t.quizzes.length !== 1 ? "s" : ""}
                   </div>
                 </div>
 
-                <div className="mt-5 flex items-center justify-between pt-4 border-t border-black/[0.05] dark:border-white/[0.06]">
+                <div className="mt-5 flex items-center justify-between pt-4 border-t border-[#dbe8f5] dark:border-white/[0.06]">
                   <button
                     onClick={() => setSelectedTopicId(t.id)}
                     className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
@@ -415,28 +415,28 @@ export function CasesClient() {
             ))}
 
             {isAdmin && (
-              <div className="rounded-[2rem] border border-dashed border-black/12 bg-zinc-50/50 p-7 dark:border-white/12 dark:bg-white/[0.03]">
+              <div className="rounded-[2rem] border border-dashed border-[#dbe8f5] bg-[#f4f8fd] p-7 dark:border-white/12 dark:bg-white/[0.03]">
                 <form onSubmit={onCreateTopic} className="flex h-full flex-col justify-between">
                   <div>
-                    <div className="mb-4 text-sm font-semibold text-zinc-900 dark:text-zinc-50">New Topic</div>
+                    <div className="mb-4 text-sm font-semibold text-[#0c2d6b] dark:text-white">New Topic</div>
                     <div className="space-y-3">
                       <input
                         value={title} onChange={(e) => setTitle(e.target.value)}
                         placeholder="Topic title"
-                        className="h-10 w-full rounded-xl border border-black/10 bg-white/80 px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                        className="h-10 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
                         required
                       />
                       <textarea
                         value={description} onChange={(e) => setDescription(e.target.value)}
                         placeholder="Description (optional)"
-                        className="min-h-20 w-full rounded-xl border border-black/10 bg-white/80 px-3 py-2 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-zinc-950/60"
+                        className="min-h-20 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
                       />
                     </div>
                   </div>
                   <button
                     type="submit"
                     disabled={creating || !title}
-                    className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                    className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-[#1666d1] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1255b8] disabled:opacity-50"
                   >
                     {creating ? "Creating…" : "Create Topic"}
                   </button>

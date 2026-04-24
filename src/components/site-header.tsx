@@ -39,6 +39,22 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function ChevronDown(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path d="M19 9l-7 7-7-7" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function ArrowRight(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function SiteHeader() {
   const pathname = usePathname() ?? "/";
   const admin = useAdmin();
@@ -56,62 +72,23 @@ export function SiteHeader() {
     [],
   );
 
-  const groupMeta: Record<
-    GroupKey,
-    {
-      label: string;
-      href?: string;
-      countLabel: string;
-    }
-  > = {
-    resources: {
-      label: t.nav.resources,
-      countLabel: `${RESOURCE_LINKS.length} pages`,
-    },
-    products: {
-      label: t.nav.products,
-      countLabel: `${PRODUCT_PAGES.length} pages`,
-    },
-    services: {
-      label: t.nav.services,
-      countLabel: `${SERVICE_PAGES.length} pages`,
-    },
-    doctors: {
-      label: t.nav.doctors,
-      href: "/doctors",
-      countLabel: `${DOCTOR_NICHES.length} niches`,
-    },
+  const groupMeta: Record<GroupKey, { label: string; href?: string; countLabel: string }> = {
+    resources: { label: t.nav.resources, countLabel: `${RESOURCE_LINKS.length} pages` },
+    products:  { label: t.nav.products,  countLabel: `${PRODUCT_PAGES.length} topics` },
+    services:  { label: t.nav.services,  countLabel: `${SERVICE_PAGES.length} services` },
+    doctors:   { label: t.nav.doctors,   href: "/doctors", countLabel: `${DOCTOR_NICHES.length} specialties` },
   };
-
-  const topLinks = [
-    { href: "/", label: t.nav.home, active: matchesPath(pathname, "/") },
-    {
-      href: "/videos",
-      label: t.nav.medications,
-      active: matchesPath(pathname, "/videos"),
-    },
-    {
-      href: "/doctors",
-      label: t.nav.doctors,
-      active: matchesPath(pathname, "/doctors"),
-      group: "doctors" as const,
-    },
-    { href: "/about", label: t.nav.about, active: matchesPath(pathname, "/about") },
-    { href: "/contact", label: t.nav.contact, active: matchesPath(pathname, "/contact") },
-  ];
 
   const groupActive = {
     resources: groupedLinks.resources.some((item) => matchesPath(pathname, item.href)),
-    products: groupedLinks.products.some((item) => matchesPath(pathname, item.href)),
-    services: groupedLinks.services.some((item) => matchesPath(pathname, item.href)),
-    doctors: matchesPath(pathname, "/doctors"),
+    products:  groupedLinks.products.some((item) => matchesPath(pathname, item.href)),
+    services:  groupedLinks.services.some((item) => matchesPath(pathname, item.href)),
+    doctors:   matchesPath(pathname, "/doctors"),
   };
 
   React.useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
   React.useEffect(() => {
@@ -120,57 +97,62 @@ export function SiteHeader() {
   }, [pathname]);
 
   const hoveredLinks =
-    hoveredGroup === "resources"
-      ? groupedLinks.resources
-      : hoveredGroup === "products"
-        ? groupedLinks.products
-        : hoveredGroup === "services"
-          ? groupedLinks.services
-          : [];
+    hoveredGroup === "resources" ? groupedLinks.resources :
+    hoveredGroup === "products"  ? groupedLinks.products :
+    hoveredGroup === "services"  ? groupedLinks.services : [];
+
+  const navLinkClass = (active: boolean, hovered?: boolean) =>
+    cn(
+      "inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all duration-150",
+      active
+        ? "text-[#1666d1] bg-[#eff6ff]"
+        : hovered
+          ? "text-[#1666d1] bg-[#f4f8fd]"
+          : "text-[#374c66] hover:text-[#1666d1] hover:bg-[#f4f8fd] dark:text-slate-300 dark:hover:text-sky-300 dark:hover:bg-white/[0.06]",
+    );
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-50 border-b border-[#0b5aad]/12 bg-[#f2f7fc]/80 backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#071120]/82"
+      className="fixed inset-x-0 top-0 z-50 border-b border-[#dbe8f5] bg-white/95 backdrop-blur-md dark:border-white/[0.08] dark:bg-[#070f1f]/95"
       onMouseLeave={() => setHoveredGroup(null)}
     >
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="group inline-flex shrink-0 items-center gap-3" onMouseEnter={() => setHoveredGroup(null)}>
-          <div className="relative h-10 w-10 overflow-hidden rounded-full border border-[#0b5aad]/12 bg-white/90 shadow-sm ring-1 ring-[#0b5aad]/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-[#0d5db8]/35 group-hover:shadow-md dark:border-white/15 dark:bg-[#0a1930] dark:ring-white/10 dark:group-hover:ring-sky-400/35">
-            <Image
-              src={logo}
-              alt="NdMedSphere logo"
-              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-              priority
-              sizes="40px"
-            />
-          </div>
+      <Container className="flex h-[68px] items-center justify-between gap-4">
+        {/* Logo */}
+        <Link
+          href="/"
+          className="group inline-flex shrink-0 items-center gap-3"
+          onMouseEnter={() => setHoveredGroup(null)}
+        >
+          <Image
+            src={logo}
+            alt="NdMedSphere logo"
+            className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105"
+            priority
+            sizes="44px"
+          />
           <div className="leading-none">
             <div className="flex items-center gap-1.5">
-              <span className="text-[15px] font-bold tracking-tight text-[#081a31] dark:text-zinc-50">
+              <span className="text-[15px] font-bold tracking-tight text-[#0c2d6b] dark:text-white">
                 NdMedSphere
               </span>
-              {isAdmin ? (
-                <span className="rounded-full bg-[#0d5db8]/12 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#0d5db8] dark:bg-sky-400/15 dark:text-sky-300">
+              {isAdmin && (
+                <span className="rounded-full bg-[#1666d1]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#1666d1] dark:bg-sky-400/15 dark:text-sky-300">
                   Admin
                 </span>
-              ) : null}
+              )}
             </div>
-            <span className="mt-0.5 block text-[11px] font-medium text-[#56708d] dark:text-slate-400">
+            <span className="mt-0.5 block text-[11px] font-medium text-[#7a90ab] dark:text-slate-400">
               Dr. David Rekhviashvili
             </span>
           </div>
         </Link>
 
+        {/* Desktop Nav */}
         <nav className="hidden items-center gap-0.5 md:flex" aria-label="Main navigation">
           <Link
             href="/"
             onMouseEnter={() => setHoveredGroup(null)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-              matchesPath(pathname, "/")
-                ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-            )}
+            className={navLinkClass(matchesPath(pathname, "/"))}
             aria-current={matchesPath(pathname, "/") ? "page" : undefined}
           >
             {t.nav.home}
@@ -182,31 +164,22 @@ export function SiteHeader() {
               type="button"
               onMouseEnter={() => setHoveredGroup(group)}
               onFocus={() => setHoveredGroup(group)}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-                groupActive[group]
-                  ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                  : hoveredGroup === group
-                    ? "bg-[#0b5aad]/8 text-[#0b3f83] dark:bg-white/[0.08] dark:text-white"
-                    : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-              )}
+              className={navLinkClass(groupActive[group], hoveredGroup === group)}
             >
-              <span>{groupMeta[group].label}</span>
-              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
+              {groupMeta[group].label}
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 transition-transform duration-200",
+                  hoveredGroup === group ? "rotate-180" : "",
+                )}
+              />
             </button>
           ))}
 
           <Link
             href="/videos"
             onMouseEnter={() => setHoveredGroup(null)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-              matchesPath(pathname, "/videos")
-                ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-            )}
+            className={navLinkClass(matchesPath(pathname, "/videos"))}
             aria-current={matchesPath(pathname, "/videos") ? "page" : undefined}
           >
             {t.nav.medications}
@@ -216,28 +189,22 @@ export function SiteHeader() {
             href="/doctors"
             onMouseEnter={() => setHoveredGroup("doctors")}
             onFocus={() => setHoveredGroup("doctors")}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-              groupActive.doctors
-                ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                : hoveredGroup === "doctors"
-                  ? "bg-[#0b5aad]/8 text-[#0b3f83] dark:bg-white/[0.08] dark:text-white"
-                  : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-            )}
+            className={navLinkClass(groupActive.doctors, hoveredGroup === "doctors")}
             aria-current={groupActive.doctors ? "page" : undefined}
           >
             {t.nav.doctors}
+            <ChevronDown
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                hoveredGroup === "doctors" ? "rotate-180" : "",
+              )}
+            />
           </Link>
 
           <Link
             href="/about"
             onMouseEnter={() => setHoveredGroup(null)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-              matchesPath(pathname, "/about")
-                ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-            )}
+            className={navLinkClass(matchesPath(pathname, "/about"))}
             aria-current={matchesPath(pathname, "/about") ? "page" : undefined}
           >
             {t.nav.about}
@@ -246,202 +213,173 @@ export function SiteHeader() {
           <Link
             href="/contact"
             onMouseEnter={() => setHoveredGroup(null)}
-            className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-150",
-              matchesPath(pathname, "/contact")
-                ? "bg-[#0b5aad] text-white shadow-sm dark:bg-sky-300 dark:text-[#081a31]"
-                : "text-[#39516c] hover:bg-[#0b5aad]/8 hover:text-[#0b3f83] dark:text-slate-300 dark:hover:bg-white/[0.08] dark:hover:text-white",
-            )}
+            className={navLinkClass(matchesPath(pathname, "/contact"))}
             aria-current={matchesPath(pathname, "/contact") ? "page" : undefined}
           >
             {t.nav.contact}
           </Link>
+        </nav>
 
+        {/* Language toggle */}
+        <div className="hidden items-center gap-2 md:flex">
           <button
             type="button"
             onClick={() => setLanguage(language === "en" ? "ka" : "en")}
-            className="ml-2 rounded-lg border border-[#0b5aad]/10 bg-white/80 px-2.5 py-1 text-xs font-bold tracking-wider text-[#39516c] shadow-sm transition-all hover:bg-white hover:text-[#0b3f83] dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white"
+            className="rounded-md border border-[#dbe8f5] bg-white px-2.5 py-1 text-xs font-bold tracking-wider text-[#4a6180] shadow-sm transition-all hover:border-[#1666d1]/30 hover:text-[#1666d1] dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:text-white"
           >
             {language === "en" ? "KA" : "EN"}
           </button>
-        </nav>
+        </div>
 
+        {/* Mobile controls */}
         <div className="flex items-center gap-2 md:hidden">
           <button
             type="button"
             onClick={() => setLanguage(language === "en" ? "ka" : "en")}
-            className="inline-flex items-center justify-center rounded-lg border border-[#0b5aad]/12 bg-white/80 px-2.5 py-1.5 text-xs font-bold tracking-wider text-[#081a31] shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-[#0a1930]/70 dark:text-zinc-50 dark:hover:bg-[#0a1930]"
+            className="inline-flex items-center justify-center rounded-md border border-[#dbe8f5] bg-white px-2.5 py-1.5 text-xs font-bold tracking-wider text-[#0c2d6b] shadow-sm transition hover:bg-[#f4f8fd] dark:border-white/15 dark:bg-[#0d1b30] dark:text-white"
           >
             {language === "en" ? "KA" : "EN"}
           </button>
           <button
             type="button"
-            className="inline-flex items-center justify-center rounded-lg border border-[#0b5aad]/12 bg-white/80 p-2 text-[#081a31] shadow-sm backdrop-blur transition hover:bg-white dark:border-white/15 dark:bg-[#0a1930]/70 dark:text-zinc-50 dark:hover:bg-[#0a1930]"
+            className="inline-flex items-center justify-center rounded-md border border-[#dbe8f5] bg-white p-2 text-[#374c66] shadow-sm transition hover:bg-[#f4f8fd] hover:text-[#1666d1] dark:border-white/15 dark:bg-[#0d1b30] dark:text-slate-300"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
+            onClick={() => setOpen((v) => !v)}
           >
             {open ? <XIcon className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
           </button>
         </div>
       </Container>
 
-      {hoveredGroup ? (
-        <div className="absolute inset-x-0 top-full hidden border-t border-white/10 bg-[linear-gradient(135deg,rgba(8,45,98,0.98),rgba(12,84,173,0.96))] text-white shadow-[0_32px_80px_-36px_rgba(8,45,98,0.72)] backdrop-blur-2xl md:block">
-          <Container className="grid gap-6 py-7 lg:grid-cols-[1fr_2fr] lg:items-start">
-            <div className="relative overflow-hidden rounded-[2rem] border border-white/14 bg-white/8 p-7">
-              <div className="absolute right-0 top-0 h-36 w-36 translate-x-1/3 -translate-y-1/3 rounded-full bg-white/10 blur-3xl" />
-              <div className="relative space-y-5">
-                <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200">
-                    {groupMeta[hoveredGroup].countLabel}
-                  </div>
-                  <h2 className="mt-3 text-3xl font-semibold tracking-tight">
-                    {groupMeta[hoveredGroup].label}
-                  </h2>
+      {/* ── Desktop Dropdown ─────────────────────────── */}
+      {hoveredGroup && (
+        <div className="absolute inset-x-0 top-full hidden border-t border-[#dbe8f5] bg-white shadow-[0_12px_40px_-8px_rgba(12,45,107,0.12)] dark:border-white/[0.08] dark:bg-[#0d1b30] md:block">
+          <Container className="py-6">
+            <div className={cn(
+              "grid gap-8",
+              hoveredGroup === "doctors" ? "lg:grid-cols-[240px_minmax(0,1fr)]" : "lg:grid-cols-[200px_minmax(0,1fr)]",
+            )}>
+              {/* Left: group label */}
+              <div className="space-y-1 border-r border-[#dbe8f5] pr-8 dark:border-white/[0.07]">
+                <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-[#7a90ab] dark:text-slate-500">
+                  {groupMeta[hoveredGroup].countLabel}
                 </div>
-                {groupMeta[hoveredGroup].href ? (
+                <h2 className="text-lg font-bold text-[#0c2d6b] dark:text-white">
+                  {groupMeta[hoveredGroup].label}
+                </h2>
+                {groupMeta[hoveredGroup].href && (
                   <Link
                     href={groupMeta[hoveredGroup].href!}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/16"
+                    className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-[#1666d1] hover:underline dark:text-sky-400"
                   >
-                    Open {groupMeta[hoveredGroup].label}
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                    View all
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
-                ) : (
-                  <div className="rounded-2xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-6 text-sky-50/90">
-                    Select one of the pages on the right.
-                  </div>
                 )}
               </div>
-            </div>
 
-            {hoveredGroup === "doctors" ? (
-              <div className="rounded-[1.75rem] border border-white/14 bg-white/7 p-5">
-                <div className="mb-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-200/90">
-                  Doctor Niches
-                </div>
-                <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {/* Right: list */}
+              {hoveredGroup === "doctors" ? (
+                <div className="columns-2 gap-1 sm:columns-3 xl:columns-4">
                   {DOCTOR_NICHES.map((item) => (
                     <Link
                       key={item}
                       href={`/doctors?niche=${encodeURIComponent(item)}`}
-                      className="rounded-xl border border-white/10 bg-white/6 px-4 py-3 text-sm leading-6 text-sky-50/90 transition hover:bg-white/12"
+                      className="group flex items-center justify-between rounded-md px-3 py-2 text-sm text-[#374c66] transition-colors hover:bg-[#f4f8fd] hover:text-[#1666d1] dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-sky-300"
                     >
                       {item}
                     </Link>
                   ))}
                 </div>
-              </div>
-            ) : (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {hoveredLinks.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="group rounded-[1.5rem] border border-white/14 bg-white/7 p-5 transition hover:bg-white/10"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-lg font-semibold text-white">{item.title}</div>
-                        <div className="mt-2 text-sm text-sky-100/80">Open page</div>
-                      </div>
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/10 text-sky-100 transition group-hover:translate-x-0.5">
-                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+              ) : (
+                <div className={cn(
+                  "grid gap-0.5",
+                  hoveredLinks.length > 4 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2",
+                )}>
+                  {hoveredLinks.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={cn(
+                        "group flex items-center justify-between rounded-md px-3 py-2.5 text-sm transition-colors",
+                        matchesPath(pathname, item.href)
+                          ? "bg-[#eff6ff] font-semibold text-[#1666d1] dark:bg-sky-400/10 dark:text-sky-300"
+                          : "text-[#374c66] hover:bg-[#f4f8fd] hover:text-[#1666d1] dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-sky-300",
+                      )}
+                    >
+                      <span className="font-medium">{item.title}</span>
+                      <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </Container>
         </div>
-      ) : null}
+      )}
 
-      {open ? (
+      {/* ── Mobile Menu ───────────────────────────────── */}
+      {open && (
         <div className="md:hidden">
-          <div className="border-t border-[#0b5aad]/12 bg-[#f2f7fc]/96 backdrop-blur-xl dark:border-white/[0.08] dark:bg-[#071120]/96">
-            <Container className="space-y-4 py-3 pb-5">
-              <div className="grid gap-2">
-                {topLinks.map((item, index) => (
+          <div className="border-t border-[#dbe8f5] bg-white dark:border-white/[0.08] dark:bg-[#070f1f]">
+            <Container className="space-y-1 py-3 pb-5">
+              {/* Direct links */}
+              {[
+                { href: "/", label: t.nav.home },
+                { href: "/videos", label: t.nav.medications },
+                { href: "/doctors", label: t.nav.doctors },
+                { href: "/about", label: t.nav.about },
+                { href: "/contact", label: t.nav.contact },
+              ].map((item, index) => {
+                const active = matchesPath(pathname, item.href);
+                return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "animate-fade-up rounded-xl px-3 py-3 transition-colors",
-                      item.active
-                        ? "bg-[#0b5aad] dark:bg-sky-300"
-                        : "bg-white/80 hover:bg-white dark:bg-white/[0.04] dark:hover:bg-white/[0.07]",
+                      "animate-fade-up flex items-center rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors",
+                      active
+                        ? "bg-[#eff6ff] font-semibold text-[#1666d1] dark:bg-sky-400/10 dark:text-sky-300"
+                        : "text-[#374c66] hover:bg-[#f4f8fd] hover:text-[#1666d1] dark:text-slate-300 dark:hover:bg-white/[0.05]",
                     )}
-                    style={{ animationDelay: `${index * 30}ms` }}
-                    aria-current={item.active ? "page" : undefined}
+                    style={{ animationDelay: `${index * 25}ms` }}
+                    aria-current={active ? "page" : undefined}
                   >
-                    <div
+                    {item.label}
+                  </Link>
+                );
+              })}
+
+              {/* Grouped sections */}
+              {(["resources", "products", "services"] as const).map((group) => (
+                <div key={group} className="pt-3">
+                  <div className="px-3.5 pb-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7a90ab] dark:text-slate-500">
+                    {groupMeta[group].label}
+                  </div>
+                  {(group === "resources" ? groupedLinks.resources :
+                    group === "products"  ? groupedLinks.products :
+                    groupedLinks.services
+                  ).map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
                       className={cn(
-                        "text-sm font-semibold",
-                        item.active ? "text-white dark:text-[#081a31]" : "text-[#081a31] dark:text-zinc-100",
+                        "flex items-center rounded-lg px-3.5 py-2 text-sm transition-colors",
+                        matchesPath(pathname, item.href)
+                          ? "font-semibold text-[#1666d1] dark:text-sky-300"
+                          : "text-[#374c66] hover:bg-[#f4f8fd] hover:text-[#1666d1] dark:text-slate-300 dark:hover:bg-white/[0.05]",
                       )}
                     >
-                      {item.label}
-                    </div>
-                    {item.group === "doctors" ? (
-                      <div
-                        className={cn(
-                          "mt-1 text-xs",
-                          item.active ? "text-white/75 dark:text-[#21456d]" : "text-[#56708d] dark:text-slate-400",
-                        )}
-                      >
-                        {DOCTOR_NICHES.slice(0, 3).join(" • ")} • +{DOCTOR_NICHES.length - 3}
-                      </div>
-                    ) : null}
-                  </Link>
-                ))}
-              </div>
-
-              {(["resources", "products", "services"] as const).map((group) => (
-                <div
-                  key={group}
-                  className="rounded-[1.5rem] border border-[#0b5aad]/10 bg-white/80 p-4 dark:border-white/10 dark:bg-white/[0.04]"
-                >
-                  <div className="mb-3 flex items-center justify-between gap-4">
-                    <div className="text-sm font-semibold text-[#081a31] dark:text-zinc-100">
-                      {groupMeta[group].label}
-                    </div>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#56708d] dark:text-slate-400">
-                      {groupMeta[group].countLabel}
-                    </div>
-                  </div>
-                  <div className="grid gap-2">
-                    {(group === "resources"
-                      ? groupedLinks.resources
-                      : group === "products"
-                        ? groupedLinks.products
-                        : groupedLinks.services
-                    ).map((item) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        className={cn(
-                          "rounded-xl border px-3 py-2.5 text-sm font-medium transition",
-                          matchesPath(pathname, item.href)
-                            ? "border-[#0b5aad] bg-[#0b5aad] text-white dark:border-sky-300 dark:bg-sky-300 dark:text-[#081a31]"
-                            : "border-[#0b5aad]/10 bg-[#f6faff] text-[#314962] hover:border-[#0b5aad]/25 hover:text-[#0b3f83] dark:border-white/10 dark:bg-white/[0.03] dark:text-slate-200 dark:hover:bg-white/[0.06]",
-                        )}
-                      >
-                        {item.title}
-                      </Link>
-                    ))}
-                  </div>
+                      {item.title}
+                    </Link>
+                  ))}
                 </div>
               ))}
             </Container>
           </div>
         </div>
-      ) : null}
+      )}
     </header>
   );
 }

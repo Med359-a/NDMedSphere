@@ -56,7 +56,7 @@ export default function RootLayout({
             Skip to content
           </a>
 
-          <div className="min-h-dvh bg-[radial-gradient(ellipse_900px_600px_at_18%_-6%,rgba(96,165,250,0.18),transparent_58%),radial-gradient(ellipse_900px_600px_at_82%_0%,rgba(14,116,217,0.14),transparent_54%),linear-gradient(180deg,#f2f7fc_0%,#f8fbff_42%,#edf4fb_100%)] text-zinc-900 dark:bg-[radial-gradient(ellipse_900px_600px_at_18%_-6%,rgba(59,130,246,0.16),transparent_52%),radial-gradient(ellipse_900px_600px_at_82%_0%,rgba(14,116,217,0.14),transparent_50%),linear-gradient(180deg,#071120_0%,#09182d_42%,#071120_100%)] dark:text-zinc-50">
+          <div className="min-h-dvh bg-white text-[#0a1e3d] dark:bg-[#070f1f] dark:text-[#e8f1fb]">
             <SiteHeader />
             <main id="content" className="pt-16">
               {children}
