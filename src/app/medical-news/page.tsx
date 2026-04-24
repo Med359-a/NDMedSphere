@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { BlogPageClient } from "@/components/blog-page-client";
+import { PRODUCT_PAGES } from "@/lib/site-sections";
 import { siteConfig } from "@/lib/site-config";
-import { MedicalNewsClient } from "@/app/medical-news/medical-news-client";
 
 export const metadata: Metadata = {
   title: `Medical News — ${siteConfig.name}`,
@@ -8,5 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default function MedicalNewsPage() {
-  return <MedicalNewsClient />;
+  const page = PRODUCT_PAGES.find((item) => item.slug === "medical-news");
+  if (!page) return null;
+  return <BlogPageClient page={page} />;
 }

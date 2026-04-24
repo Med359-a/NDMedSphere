@@ -14,9 +14,9 @@ export function SiteFooter() {
   const links = [
     { href: "/about", label: t.nav.about },
     { href: "/books", label: t.nav.books },
-    { href: "/usmle", label: t.nav.usmle },
     { href: "/cases", label: t.nav.cases },
-    { href: "/videos", label: t.nav.videos },
+    { href: "/usmle", label: t.nav.usmle },
+    { href: "/videos", label: t.nav.medications },
     { href: "/medical-news", label: t.nav.news },
     { href: "/doctors", label: t.nav.doctors },
     { href: "/contact", label: t.nav.contact },

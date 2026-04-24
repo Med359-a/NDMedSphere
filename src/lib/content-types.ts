@@ -38,6 +38,18 @@ export type StudyItem = {
   tags: string[];
   url?: string;
   imageFileId?: string;
+  pageSlug?: string;
+  pageGroup?: string;
+  createdAt: string;
+};
+
+export type BlogPostItem = {
+  id: string;
+  title: string;
+  body: string;
+  imageFileId?: string;
+  pageSlug: string;
+  pageGroup: "products" | "services";
   createdAt: string;
 };
 
@@ -45,6 +57,8 @@ export type DoctorItem = {
   id: string;
   name: string;
   biography: string;
+  niche: string;
+  rating: number;
   imageFileId?: string;
   createdAt: string;
 };

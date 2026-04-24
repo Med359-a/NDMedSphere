@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { isAdminRequest } from "@/lib/admin";
 import { buildStoragePath } from "@/lib/content-utils";
+import { DOCTOR_NICHES } from "@/lib/site-sections";
 import { type DoctorRow, toDoctorItem } from "@/lib/supabase-content";
 import {
   getSupabaseAdmin,
@@ -17,7 +18,7 @@ export async function GET() {
   try {
     const { data, error } = await getSupabaseAdmin()
       .from("doctors")
-      .select("id, name, biography, image_path, created_at")
+      .select("id, name, biography, niche, rating, image_path, created_at")
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -42,6 +43,8 @@ export async function POST(request: NextRequest) {
     let body: {
       name: string;
       biography: string;
+      niche: string;
+      rating: number;
       file: File | null;
     };
 
@@ -51,6 +54,8 @@ export async function POST(request: NextRequest) {
       body = {
         name: String(formData.get("name") ?? "").trim(),
         biography: String(formData.get("biography") ?? "").trim(),
+        niche: String(formData.get("niche") ?? "").trim(),
+        rating: Number(formData.get("rating") ?? 5),
         file: (formData.get("file") as File | null) ?? null,
       };
     } else {
@@ -58,12 +63,16 @@ export async function POST(request: NextRequest) {
         | {
             name?: unknown;
             biography?: unknown;
+            niche?: unknown;
+            rating?: unknown;
           }
         | null;
 
       body = {
         name: String(json?.name ?? "").trim(),
         biography: String(json?.biography ?? "").trim(),
+        niche: String(json?.niche ?? "").trim(),
+        rating: Number(json?.rating ?? 5),
         file: null,
       };
     }
@@ -74,6 +83,14 @@ export async function POST(request: NextRequest) {
 
     if (!body.biography) {
       return NextResponse.json({ error: "Biography is required." }, { status: 400 });
+    }
+
+    if (!DOCTOR_NICHES.includes(body.niche as (typeof DOCTOR_NICHES)[number])) {
+      return NextResponse.json({ error: "A valid niche is required." }, { status: 400 });
+    }
+
+    if (!Number.isInteger(body.rating) || body.rating < 1 || body.rating > 5) {
+      return NextResponse.json({ error: "Rating must be between 1 and 5." }, { status: 400 });
     }
 
     const id = crypto.randomUUID();
@@ -97,6 +114,8 @@ export async function POST(request: NextRequest) {
       id,
       name: body.name,
       biography: body.biography,
+      niche: body.niche,
+      rating: body.rating,
       image_path: imagePath,
       created_at: createdAt,
     };

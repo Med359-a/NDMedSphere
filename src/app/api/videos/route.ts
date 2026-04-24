@@ -99,16 +99,19 @@ export async function POST(request: NextRequest) {
     for (let i = 0; i < files.length; i += 1) {
       const file = files[i];
 
-      if (!file.type.startsWith("video/")) {
+      const isVideo = file.type.startsWith("video/");
+      const isImage = file.type.startsWith("image/");
+      if (!isVideo && !isImage) {
         return NextResponse.json(
           { error: `Unsupported file type: ${file.type || "unknown"}` },
           { status: 415 },
         );
       }
 
-      if (file.size > maxBytes) {
+      const maxFileSize = isImage ? 10 * 1024 * 1024 : maxBytes;
+      if (file.size > maxFileSize) {
         return NextResponse.json(
-          { error: `File too large. Max is ${maxBytes} bytes.` },
+          { error: `File too large. Max is ${maxFileSize} bytes.` },
           { status: 413 },
         );
       }

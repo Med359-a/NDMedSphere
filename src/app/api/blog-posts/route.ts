@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "node:crypto";
 import { isAdminRequest } from "@/lib/admin";
-import { buildStoragePath, normalizeUrl, parseTags } from "@/lib/content-utils";
-import { type MedicalNewsRow, toStudyItem } from "@/lib/supabase-content";
+import { buildStoragePath } from "@/lib/content-utils";
+import { getBlogPageBySlug } from "@/lib/site-sections";
+import { type MedicalNewsRow, toBlogPostItem } from "@/lib/supabase-content";
 import {
   getSupabaseAdmin,
   removeStorageObject,
@@ -13,22 +14,27 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const pageSlug = String(request.nextUrl.searchParams.get("page") ?? "").trim();
+  if (!pageSlug) {
+    return NextResponse.json({ error: "Missing query param 'page'." }, { status: 400 });
+  }
+
   try {
     const { data, error } = await getSupabaseAdmin()
       .from("medical_news")
       .select("id, title, notes, tags, url, image_path, page_slug, page_group, created_at")
-      .eq("page_slug", "medical-news")
+      .eq("page_slug", pageSlug)
       .order("created_at", { ascending: false });
 
     if (error) throw new Error(error.message);
 
-    return NextResponse.json(((data ?? []) as MedicalNewsRow[]).map(toStudyItem), {
+    return NextResponse.json(((data ?? []) as MedicalNewsRow[]).map(toBlogPostItem), {
       headers: { "Cache-Control": "no-store" },
     });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to load notes." },
+      { error: e instanceof Error ? e.message : "Failed to load posts." },
       { status: 500 },
     );
   }
@@ -40,81 +46,51 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    let body: {
-      title: string;
-      notes: string;
-      tags: string[];
-      url: string;
-      file: File | null;
-    };
+    const formData = await request.formData();
+    const title = String(formData.get("title") ?? "").trim();
+    const body = String(formData.get("body") ?? "").trim();
+    const pageSlug = String(formData.get("pageSlug") ?? "").trim();
+    const pageGroup = String(formData.get("pageGroup") ?? "").trim() as "products" | "services";
+    const file = (formData.get("file") as File | null) ?? null;
 
-    const contentType = request.headers.get("content-type") || "";
-    if (contentType.includes("multipart/form-data")) {
-      const formData = await request.formData();
-      body = {
-        title: String(formData.get("title") ?? "").trim(),
-        notes: String(formData.get("notes") ?? "").trim(),
-        tags: parseTags(formData.get("tags")),
-        url: String(formData.get("url") ?? "").trim(),
-        file: (formData.get("file") as File | null) ?? null,
-      };
-    } else {
-      const json = (await request.json().catch(() => null)) as
-        | {
-            title?: unknown;
-            notes?: unknown;
-            tags?: unknown;
-            url?: unknown;
-          }
-        | null;
-
-      body = {
-        title: String(json?.title ?? "").trim(),
-        notes: String(json?.notes ?? "").trim(),
-        tags: parseTags(json?.tags),
-        url: String(json?.url ?? "").trim(),
-        file: null,
-      };
-    }
-
-    if (!body.title) {
+    if (!title) {
       return NextResponse.json({ error: "Title is required." }, { status: 400 });
     }
-    if (!body.notes) {
-      return NextResponse.json({ error: "Notes are required." }, { status: 400 });
+    if (!body) {
+      return NextResponse.json({ error: "Body is required." }, { status: 400 });
     }
 
-    const url = normalizeUrl(body.url);
-    if (body.url && !url) {
-      return NextResponse.json({ error: "Invalid URL." }, { status: 400 });
+    const page = getBlogPageBySlug(pageGroup, pageSlug);
+    if (!page && !(pageGroup === "products" && pageSlug === "medical-news")) {
+      return NextResponse.json({ error: "Invalid page target." }, { status: 400 });
     }
 
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
     let imagePath: string | null = null;
 
-    if (body.file && body.file.size > 0) {
-      if (!body.file.type.startsWith("image/")) {
+    if (file && file.size > 0) {
+      if (!file.type.startsWith("image/")) {
         return NextResponse.json({ error: "Only image files are allowed." }, { status: 415 });
       }
 
-      if (body.file.size > 10 * 1024 * 1024) {
+      if (file.size > 10 * 1024 * 1024) {
         return NextResponse.json({ error: "Image too large (max 10MB)." }, { status: 413 });
       }
 
-      imagePath = buildStoragePath([id], body.file.name || `${id}.image`);
-      await uploadStorageObject(STORAGE_BUCKETS.medicalNewsImages, imagePath, body.file);
+      imagePath = buildStoragePath([pageGroup, pageSlug, id], file.name || `${id}.image`);
+      await uploadStorageObject(STORAGE_BUCKETS.medicalNewsImages, imagePath, file);
     }
 
     const row: MedicalNewsRow = {
       id,
-      title: body.title,
-      notes: body.notes,
-      tags: body.tags,
-      url: url || null,
+      title,
+      notes: body,
+      tags: [],
+      url: null,
       image_path: imagePath,
-      page_slug: "medical-news",
-      page_group: "products",
+      page_slug: pageSlug,
+      page_group: pageGroup,
       created_at: createdAt,
     };
 
@@ -141,10 +117,10 @@ export async function POST(request: NextRequest) {
       throw new Error(error.message);
     }
 
-    return NextResponse.json({ item: toStudyItem(row) }, { status: 201 });
+    return NextResponse.json({ item: toBlogPostItem(row) }, { status: 201 });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to create note." },
+      { error: e instanceof Error ? e.message : "Failed to create post." },
       { status: 500 },
     );
   }
@@ -192,7 +168,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "Failed to delete note." },
+      { error: e instanceof Error ? e.message : "Failed to delete post." },
       { status: 500 },
     );
   }

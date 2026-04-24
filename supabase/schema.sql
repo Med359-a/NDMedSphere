@@ -55,20 +55,38 @@ create table if not exists public.medical_news (
   tags text[] not null default '{}'::text[],
   url text,
   image_path text,
+  page_slug text not null default 'medical-news',
+  page_group text not null default 'products',
   created_at timestamptz not null default timezone('utc', now())
 );
 
+alter table public.medical_news
+  add column if not exists page_slug text not null default 'medical-news';
+
+alter table public.medical_news
+  add column if not exists page_group text not null default 'products';
+
 create index if not exists medical_news_created_at_idx on public.medical_news (created_at desc);
+create index if not exists medical_news_page_slug_idx on public.medical_news (page_slug, created_at desc);
 
 create table if not exists public.doctors (
   id text primary key,
   name text not null,
   biography text not null,
+  niche text not null default 'Other Specialty',
+  rating integer not null default 5 check (rating between 1 and 5),
   image_path text,
   created_at timestamptz not null default timezone('utc', now())
 );
 
+alter table public.doctors
+  add column if not exists niche text not null default 'Other Specialty';
+
+alter table public.doctors
+  add column if not exists rating integer not null default 5;
+
 create index if not exists doctors_created_at_idx on public.doctors (created_at desc);
+create index if not exists doctors_niche_idx on public.doctors (niche);
 
 create table if not exists public.usmle_resources (
   id text primary key,

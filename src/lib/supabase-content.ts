@@ -1,6 +1,7 @@
 import "server-only";
 
 import type {
+  BlogPostItem,
   BookItem,
   DoctorItem,
   QuizAnswer,
@@ -58,6 +59,8 @@ export type MedicalNewsRow = {
   tags: string[] | null;
   url: string | null;
   image_path: string | null;
+  page_slug: string;
+  page_group: "products" | "services";
   created_at: string;
 };
 
@@ -65,6 +68,8 @@ export type DoctorRow = {
   id: string;
   name: string;
   biography: string;
+  niche: string;
+  rating: number;
   image_path: string | null;
   created_at: string;
 };
@@ -113,6 +118,20 @@ export function toStudyItem(row: MedicalNewsRow): StudyItem {
     tags: Array.isArray(row.tags) ? row.tags : [],
     url: row.url ?? undefined,
     imageFileId: row.image_path ?? undefined,
+    pageSlug: row.page_slug,
+    pageGroup: row.page_group,
+    createdAt: toIsoDateString(row.created_at),
+  };
+}
+
+export function toBlogPostItem(row: MedicalNewsRow): BlogPostItem {
+  return {
+    id: row.id,
+    title: row.title,
+    body: row.notes,
+    imageFileId: row.image_path ?? undefined,
+    pageSlug: row.page_slug,
+    pageGroup: row.page_group,
     createdAt: toIsoDateString(row.created_at),
   };
 }
@@ -122,6 +141,8 @@ export function toDoctorItem(row: DoctorRow): DoctorItem {
     id: row.id,
     name: row.name,
     biography: row.biography,
+    niche: row.niche,
+    rating: row.rating,
     imageFileId: row.image_path ?? undefined,
     createdAt: toIsoDateString(row.created_at),
   };
@@ -141,10 +162,17 @@ export function toUsmleItem(row: UsmleRow): UsmleItem {
 }
 
 export function toVideoItem(row: VideoRow): VideoItem {
+  const mediaType: VideoItem["mediaType"] = row.youtube_url
+    ? "youtube"
+    : row.mime_type?.startsWith("image/")
+      ? "image"
+      : "video";
+
   return {
     id: row.id,
     title: row.title,
     description: row.description || "",
+    mediaType,
     youtubeUrl: row.youtube_url ?? undefined,
     originalName: row.original_name ?? undefined,
     mimeType: row.mime_type ?? undefined,
