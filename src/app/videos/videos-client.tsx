@@ -61,23 +61,30 @@ function MediaPreview({
   }
 
   if (item.mediaType === "youtube") {
+    const ytId = getYoutubeId(item.youtubeUrl ?? "");
     return (
-      <div className={`relative overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(59,130,246,0.35),transparent_45%),linear-gradient(135deg,#0b2c59,#104894)] ${className ?? ""}`}>
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent,rgba(3,7,18,0.35))]" />
-        <div className="relative flex h-full flex-col justify-between p-5 text-white">
-          <span className="inline-flex w-fit items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em]">
+      <div className={`relative overflow-hidden bg-black ${className ?? ""}`}>
+        {ytId ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+            alt={getDisplayTitle(item)}
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-xl transition-transform duration-200 group-hover:scale-110">
+            <svg className="ml-1 h-6 w-6 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <span className="inline-flex items-center gap-1 rounded-full bg-red-600/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white">
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
             YouTube
           </span>
-          <div>
-            <div className="max-w-[15rem] text-lg font-semibold leading-snug">
-              {getDisplayTitle(item)}
-            </div>
-            <div className="mt-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white text-[#1666d1] shadow-lg">
-              <svg className="ml-0.5 h-5 w-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
         </div>
       </div>
     );

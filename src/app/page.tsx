@@ -7,7 +7,6 @@ import { Container } from "@/components/container";
 import { siteConfig } from "@/lib/site-config";
 import heroImage from "@/image_50348545.jpg";
 import { useLanguage } from "@/lib/i18n";
-
 function ArrowRight(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
@@ -207,9 +206,7 @@ export default function Home() {
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                   sizes="(min-width: 1024px) 50vw, 100vw"
                 />
-                {/* Dark overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0c2d6b]/90 via-[#0c2d6b]/30 to-transparent" />
-
                 <div className="absolute inset-0 flex flex-col justify-end p-7">
                   <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.22em] text-sky-300">
                     {featured.eyebrow}
