@@ -189,67 +189,154 @@ function QuizView({
           </div>
 
           {isAdmin && (
-            <div className="mt-12 rounded-2xl border border-[#dbe8f5] bg-[#f4f8fd] p-7 shadow-sm dark:border-white/10 dark:bg-[#0d1b30]">
-              <div className="text-base font-semibold text-[#0c2d6b] dark:text-white">Add Question</div>
-              <form onSubmit={onAddQuiz} className="mt-5 grid gap-5">
+            <div className="mt-12 rounded-2xl border border-[#dbe8f5] bg-white shadow-sm dark:border-white/10 dark:bg-[#0f2040]">
+              <div className="border-b border-[#dbe8f5] px-7 py-5 dark:border-white/[0.06]">
+                <div className="text-base font-bold text-[#0c2d6b] dark:text-white">Add Question</div>
+                <p className="mt-1 text-sm text-[#7a90ab] dark:text-slate-400">
+                  Write the question, attach an image, add answer choices, mark the correct one, and optionally add an explanation.
+                </p>
+              </div>
+              <form onSubmit={onAddQuiz} className="grid gap-6 p-7">
+                {/* Question */}
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Question *</label>
+                  <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#7a90ab] dark:text-slate-400">
+                    Question <span className="text-rose-400">*</span>
+                  </label>
                   <textarea
-                    value={question} onChange={(e) => setQuestion(e.target.value)}
-                    className="min-h-24 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
-                    placeholder="Enter question text…" required
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                    className="min-h-24 w-full rounded-xl border border-[#dbe8f5] bg-[#f4f8fd] px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0d1b30]"
+                    placeholder="Enter question text…"
+                    required
                   />
                 </div>
+
+                {/* Image upload */}
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Image (optional)</label>
-                  <input type="file" accept="image/*" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0] || null)} className="text-sm" />
+                  <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#7a90ab] dark:text-slate-400">
+                    Image <span className="font-normal normal-case tracking-normal">(optional)</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#dbe8f5] bg-[#f4f8fd] px-4 py-2.5 text-sm font-semibold text-[#374c66] shadow-sm transition hover:border-emerald-400 hover:text-emerald-700 dark:border-white/15 dark:bg-[#0d1b30] dark:text-slate-200 dark:hover:border-emerald-500">
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      {file ? "Change image" : "Upload image"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={fileInputRef}
+                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        className="sr-only"
+                      />
+                    </label>
+                    {file && (
+                      <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {file.name}
+                        <button type="button" onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }} className="ml-1 text-emerald-500 hover:text-rose-500">✕</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Answers (select correct with radio)</label>
-                  {answers.map((ans, i) => (
-                    <div key={i} className="flex gap-3">
-                      <input
-                        type="radio" name="correctAnswer" checked={ans.isCorrect}
-                        onChange={() => { const next = [...answers]; next.forEach((a) => (a.isCorrect = false)); next[i].isCorrect = true; setAnswers(next); }}
-                        className="mt-3 accent-emerald-600"
-                      />
-                      <input
-                        value={ans.text}
-                        onChange={(e) => { const next = [...answers]; next[i].text = e.target.value; setAnswers(next); }}
-                        className="h-10 flex-1 rounded-xl border border-[#dbe8f5] bg-white px-3 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
-                        placeholder={`Option ${i + 1}`}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => { if (answers.length > 2) setAnswers(answers.filter((_, idx) => idx !== i)); }}
-                        disabled={answers.length <= 2}
-                        className="px-2 text-[#7a90ab] hover:text-rose-500 disabled:opacity-30"
+
+                {/* Answers */}
+                <div className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#7a90ab] dark:text-slate-400">
+                      Answer choices <span className="text-rose-400">*</span>
+                    </label>
+                    <span className="text-[10px] text-[#7a90ab] dark:text-slate-500">Click the circle to mark correct</span>
+                  </div>
+                  <div className="overflow-hidden rounded-xl border border-[#dbe8f5] bg-[#f4f8fd] dark:border-white/10 dark:bg-[#0d1b30]">
+                    {answers.map((ans, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center gap-3 border-b border-[#dbe8f5] px-4 py-3 last:border-b-0 dark:border-white/[0.06] ${ans.isCorrect ? "bg-emerald-50 dark:bg-emerald-500/10" : ""}`}
                       >
-                        ✕
-                      </button>
-                    </div>
-                  ))}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = answers.map((a, idx) => ({ ...a, isCorrect: idx === i }));
+                            setAnswers(next);
+                          }}
+                          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                            ans.isCorrect
+                              ? "border-emerald-500 bg-emerald-500 text-white"
+                              : "border-[#dbe8f5] bg-white hover:border-emerald-400 dark:border-white/20 dark:bg-[#0f2040]"
+                          }`}
+                          aria-label={`Mark option ${i + 1} as correct`}
+                        >
+                          {ans.isCorrect && (
+                            <svg className="h-2.5 w-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          )}
+                        </button>
+                        <span className="shrink-0 text-xs font-bold text-[#7a90ab] dark:text-slate-500">
+                          {String.fromCharCode(65 + i)}.
+                        </span>
+                        <input
+                          value={ans.text}
+                          onChange={(e) => {
+                            const next = [...answers];
+                            next[i] = { ...next[i], text: e.target.value };
+                            setAnswers(next);
+                          }}
+                          className="flex-1 bg-transparent text-sm text-[#374c66] outline-none placeholder:text-[#b0bfcf] dark:text-slate-200"
+                          placeholder={`Option ${String.fromCharCode(65 + i)}`}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => { if (answers.length > 2) setAnswers(answers.filter((_, idx) => idx !== i)); }}
+                          disabled={answers.length <= 2}
+                          className="shrink-0 rounded-lg p-1 text-[#b0bfcf] transition hover:bg-rose-50 hover:text-rose-500 disabled:opacity-20 dark:hover:bg-rose-500/10 dark:hover:text-rose-400"
+                        >
+                          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                   <button
                     type="button"
                     onClick={() => setAnswers([...answers, { text: "", isCorrect: false }])}
-                    className="text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                    className="inline-flex items-center gap-1.5 self-start rounded-lg border border-dashed border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition hover:border-emerald-500 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-400 dark:hover:bg-emerald-500/10"
                   >
-                    + Add Option
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Add option
                   </button>
                 </div>
+
+                {/* Explanation */}
                 <div className="grid gap-1.5">
-                  <label className="text-xs font-semibold text-[#7a90ab] dark:text-slate-400">Explanation (optional)</label>
+                  <label className="text-xs font-bold uppercase tracking-[0.16em] text-[#7a90ab] dark:text-slate-400">
+                    Explanation <span className="font-normal normal-case tracking-normal">(shown after answering)</span>
+                  </label>
                   <textarea
-                    value={explanation} onChange={(e) => setExplanation(e.target.value)}
-                    className="min-h-20 w-full rounded-xl border border-[#dbe8f5] bg-white px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0f2040]"
-                    placeholder="Why is the correct answer correct?"
+                    value={explanation}
+                    onChange={(e) => setExplanation(e.target.value)}
+                    className="min-h-20 w-full rounded-xl border border-[#dbe8f5] bg-[#f4f8fd] px-3 py-2.5 text-sm shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/15 dark:border-white/15 dark:bg-[#0d1b30]"
+                    placeholder="Why is the correct answer correct? This appears after the user submits."
                   />
                 </div>
+
                 <button
-                  type="submit" disabled={saving}
-                  className="inline-flex h-11 items-center justify-center rounded-xl bg-[#1666d1] px-5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-[#1255b8] disabled:opacity-60"
+                  type="submit"
+                  disabled={saving}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 hover:shadow-md disabled:opacity-60"
                 >
-                  {saving ? "Adding…" : "Add Question"}
+                  {saving ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                      Adding…
+                    </>
+                  ) : "Add Question"}
                 </button>
               </form>
             </div>

@@ -444,8 +444,8 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
                   <div className="grid md:grid-cols-[200px_minmax(0,1fr)]">
-                    {/* Photo column */}
-                    <div className="relative min-h-56 overflow-hidden border-b border-[#dbe8f5] md:border-b-0 md:border-r dark:border-white/[0.06]">
+                    {/* Photo column — fixed height so it never stretches with biography */}
+                    <div className="relative h-56 shrink-0 self-start overflow-hidden border-b border-[#dbe8f5] md:h-64 md:border-b-0 md:border-r dark:border-white/[0.06]">
                       {doctor.imageFileId ? (
                         <Image
                           src={`/api/doctors/image?id=${doctor.imageFileId}`}
@@ -453,10 +453,10 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
                           fill
                           unoptimized
                           sizes="200px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full min-h-56 items-center justify-center bg-gradient-to-br from-[#eff6ff] via-[#f4f8fd] to-white dark:from-sky-900/20 dark:via-[#0d1b30] dark:to-[#0f2040]">
+                        <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#eff6ff] via-[#f4f8fd] to-white dark:from-sky-900/20 dark:via-[#0d1b30] dark:to-[#0f2040]">
                           <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-[#dbe8f5] bg-white text-2xl font-bold text-[#0c2d6b] shadow-sm dark:border-white/15 dark:bg-[#0d1b30] dark:text-white">
                             {initialsFromName(doctor.name)}
                           </div>
