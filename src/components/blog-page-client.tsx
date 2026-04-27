@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { Container } from "@/components/container";
-import { BlogPostModal } from "@/components/blog-post-modal";
 import type { BlogPostItem } from "@/lib/content-types";
 import type { BlogPageConfig } from "@/lib/site-sections";
 import { useAdmin } from "@/lib/use-admin";
@@ -18,7 +18,6 @@ export function BlogPageClient({ page }: { page: BlogPageConfig }) {
 
   const [load, setLoad] = React.useState<LoadState>({ status: "loading" });
   const [items, setItems] = React.useState<BlogPostItem[]>([]);
-  const [selectedItem, setSelectedItem] = React.useState<BlogPostItem | null>(null);
 
   const [title, setTitle] = React.useState("");
   const [body, setBody] = React.useState("");
@@ -245,7 +244,7 @@ export function BlogPageClient({ page }: { page: BlogPageConfig }) {
                   className="animate-fade-up group overflow-hidden rounded-2xl border border-[#dbe8f5] bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-[#1666d1]/25 hover:shadow-[0_8px_32px_-8px_rgba(22,102,209,0.15)] dark:border-white/10 dark:bg-[#0f2040]"
                   style={{ animationDelay: `${index * 40}ms` }}
                 >
-                  <button type="button" onClick={() => setSelectedItem(item)} className="block w-full text-left">
+                  <Link href={`/posts/${item.id}`} className="block">
                     {item.imageFileId ? (
                       <div className="aspect-[16/9] w-full overflow-hidden bg-[#f4f8fd] dark:bg-[#0d1b30]">
                         <img
@@ -275,7 +274,7 @@ export function BlogPageClient({ page }: { page: BlogPageConfig }) {
                         </svg>
                       </div>
                     </div>
-                  </button>
+                  </Link>
                   {isAdmin ? (
                     <div className="border-t border-[#dbe8f5] px-5 py-3 dark:border-white/[0.06]">
                       <button
@@ -295,9 +294,6 @@ export function BlogPageClient({ page }: { page: BlogPageConfig }) {
         </Container>
       </section>
 
-      {selectedItem ? (
-        <BlogPostModal item={selectedItem} onClose={() => setSelectedItem(null)} />
-      ) : null}
     </div>
   );
 }

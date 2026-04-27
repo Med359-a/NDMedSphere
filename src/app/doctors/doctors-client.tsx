@@ -438,9 +438,10 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
           {load.status !== "loading" && filteredItems.length > 0 ? (
             <div className="grid gap-5 lg:grid-cols-2">
               {filteredItems.map((doctor, index) => (
-                <article
+                <Link
                   key={doctor.id}
-                  className="animate-fade-up group overflow-hidden rounded-2xl border border-[#dbe8f5] bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-[#1666d1]/25 hover:shadow-[0_8px_32px_-8px_rgba(22,102,209,0.16)] dark:border-white/10 dark:bg-[#0f2040]"
+                  href={`/doctors/${doctor.id}`}
+                  className="animate-fade-up group block overflow-hidden rounded-2xl border border-[#dbe8f5] bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-[#1666d1]/25 hover:shadow-[0_8px_32px_-8px_rgba(22,102,209,0.16)] dark:border-white/10 dark:bg-[#0f2040]"
                   style={{ animationDelay: `${index * 60}ms` }}
                 >
                   <div className="grid md:grid-cols-[200px_minmax(0,1fr)]">
@@ -465,7 +466,7 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
                     </div>
 
                     {/* Info column */}
-                    <div className="p-6">
+                    <div className="min-w-0 overflow-hidden p-6">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <h3 className="font-display text-xl font-bold tracking-tight text-[#0c2d6b] dark:text-white">
@@ -490,7 +491,7 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
                         {isAdmin ? (
                           <button
                             type="button"
-                            onClick={() => void onDelete(doctor.id)}
+                            onClick={(e) => { e.stopPropagation(); void onDelete(doctor.id); }}
                             disabled={deletingId === doctor.id}
                             className="shrink-0 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 disabled:opacity-60 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300"
                           >
@@ -503,18 +504,25 @@ export function DoctorsClient({ initialNiche = null }: { initialNiche?: string |
                         <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#7a90ab] dark:text-slate-500">
                           {t.doctors.biography_heading}
                         </div>
-                        <p className="whitespace-pre-line text-sm leading-7 text-[#4a6180] dark:text-slate-300">
+                        <p className="line-clamp-3 break-words text-sm leading-7 text-[#4a6180] dark:text-slate-300">
                           {doctor.biography}
                         </p>
+                        <div className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#1666d1] dark:text-sky-400">
+                          Read full profile
+                          <svg className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </article>
+                </Link>
               ))}
             </div>
           ) : null}
         </Container>
       </section>
+
     </div>
   );
 }
