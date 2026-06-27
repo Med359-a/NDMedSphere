@@ -141,8 +141,15 @@ export function SiteFooter() {
             © {new Date().getFullYear()} NdMedSphere. {t.footer.rights}
           </div>
           <div className="flex items-center gap-1 text-xs text-[#7a90ab] dark:text-slate-500">
-            <span>Powered by</span>
-            <span className="font-semibold text-[#1666d1] dark:text-sky-400">NdMedSphere</span>
+            <span>Made by</span>
+            <a
+              href="https://pixelweb.ge"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold text-[#1666d1] transition-colors hover:text-[#0c52ab] dark:text-sky-400 dark:hover:text-sky-300"
+            >
+              Pixelweb
+            </a>
           </div>
         </div>
       </Container>
